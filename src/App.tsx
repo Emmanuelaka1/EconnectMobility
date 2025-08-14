@@ -1,8 +1,10 @@
 import React from "react";
-import AppRouter from "@/routes/AppRouter";
+import { RouterProvider } from "react-router-dom";
+import router from "./app/router";
 
-const App: React.FC = () => {
-  return <AppRouter />;
-};
-
-export default App;
+export default function App() {
+  return (
+    // ex: <QueryClientProvider client={client}> … </QueryClientProvider>
+    <RouterProvider router={router} />
+  );
+}

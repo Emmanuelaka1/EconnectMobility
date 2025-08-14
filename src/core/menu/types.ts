@@ -1,5 +1,11 @@
 import React from "react";
 
+export type RoleKey =
+  | "ADMIN"
+  | "MANAGER"
+  | "DRIVER"
+  | "ACCOUNTANT";
+
 export type PermissionKey =
   | "MENU_DASHBOARD"
   | "MENU_VOITURES_READ"
@@ -18,3 +24,8 @@ export interface MenuItem {
   permissions?: PermissionKey[];
   roles?: string[];
 }
+
+export type MenuEntry = MenuItem & {
+  /** true = visible mais verrouillé (invité) */
+  locked: boolean;
+};

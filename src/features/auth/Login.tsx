@@ -3,10 +3,9 @@ import { Mail, KeyRound, Loader2 } from "lucide-react";
 import { post } from "@/core/api/client";
 import { useAuthStore } from "@/core/auth/auth.store";
 import { useNavigate } from "react-router-dom";
+import { ResponseDto, UsersDto } from "@/Api/ApiDto";
 
-interface AuthResponse {
-  token: string;
-  refreshToken?: string;
+interface AuthResponse extends ResponseDto<UsersDto> {
   user?: { id?: number | string; name?: string; role?: string; permissions?: string[]; email?: string };
 }
 
@@ -14,6 +13,7 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const setToken = useAuthStore((s) => s.setToken);
   const setUser = useAuthStore((s) => s.setUser);
+  const setUsername = useAuthStore((s) => s.setUsername);
 
   const [username, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,13 +25,20 @@ const Login: React.FC = () => {
     setError(null);
     setLoading(true);
     try {
-      const data = await post<AuthResponse>("/users/authenticate", { username:username, password });
-      if (!data?.token) throw new Error("Jeton manquant dans la réponse");
-      setToken(data.token, data.refreshToken);
-      if (data.user) setUser(data.user);
+      const res = await post<AuthResponse>("/users/authenticate", { username:username, password });
+      if (!res?.data?.token) navigate("/", { replace: true }); // A supprimer //throw new Error("Jeton manquant dans la réponse");
+      setToken(res?.data?.token ?? "", res?.data?.refreshToken);
+      if (res.data){
+        setUsername(res.data.username); // Met à jour le nom d'utilisateur dans le store
+        setUser(res?.data); // Met à jour l'utilisateur dans le store
+      } 
       navigate("/", { replace: true });
-    } catch (err: any) {
-      setError(err?.message || "Échec de connexion");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || "Échec de connexion");
+      } else {
+        setError("Échec de connexion");
+      }
     } finally {
       setLoading(false);
     }

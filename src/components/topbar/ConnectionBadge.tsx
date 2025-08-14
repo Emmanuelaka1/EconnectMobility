@@ -1,5 +1,4 @@
-﻿import React from "react";
-import { useAuthStore } from "@/core/auth/auth.store";
+﻿import { useAuthStore } from "@/core/auth/auth.store";
 export default function ConnectionBadge() {
   const isAuth = useAuthStore((s) => Boolean(s.token));
   return (
@@ -8,7 +7,7 @@ export default function ConnectionBadge() {
       isAuth ? "bg-emerald-900/40 text-emerald-300 ring-1 ring-emerald-800/60"
              : "bg-yellow-900/30 text-yellow-200 ring-1 ring-yellow-700/60",
     ].join(" ")} aria-live="polite">
-      {isAuth ? "ConnectÃ©" : "Mode invitÃ© (non connectÃ©)"}
+      {isAuth ? "Connecté" : "Mode invité (non connecté)"}
     </span>
   );
 }

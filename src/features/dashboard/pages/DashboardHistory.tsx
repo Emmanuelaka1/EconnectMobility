@@ -1,18 +1,43 @@
 import React from "react";
 import MonthTabs from "../components/MonthTabs";
 import { useQuery } from "@tanstack/react-query";
-import { get } from "../../core/api/client";
+// ⚠️ si l'alias "@" n'est pas configuré, remplace par: "../../../core/api/client"
+import { get } from "@/core/api/client";
 import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
-import { format } from "date-fns";
 
-type Car = { id?: number; ref?: string; referenceCar?: string; marque?: string; modele?: string; prixAchat?: number };
+// ---- Types API
+type Car = {
+  id?: number;
+  ref?: string;
+  referenceCar?: string;
+  marque?: string;
+  modele?: string;
+  prixAchat?: number;
+};
 type Recette = { id?: number; date: string; carRef?: string; montant?: number };
 type Operation = { id?: number; date: string; type?: string; amount?: number; carRef?: string };
+type ResponseDto<T> = { statut: boolean; message: string; data: T };
 
+// ---- Aide sécurisée pour extraire un array de ResponseDto
+function unwrapArray<T>(resp: ResponseDto<T[]> | undefined): T[] {
+  return Array.isArray(resp?.data) ? resp!.data : [];
+}
+
+// ---- Optionnel (ex. si tu veux des courbes)
+type HistoryItem = { date: string; recettes: number; charges?: number; reparations?: number };
+function toChart(items: HistoryItem[]) {
+  const labels = items.map((i) => i.date);
+  const recettes = items.map((i) => i.recettes ?? 0);
+  const charges = items.map((i) => i.charges ?? 0);
+  const reparations = items.map((i) => i.reparations ?? 0);
+  return { labels, recettes, charges, reparations };
+}
+
+// ---- Outils de période
 function monthDateRange(year: number, monthIndex: number) {
   const start = new Date(Date.UTC(year, monthIndex, 1));
   const end = new Date(Date.UTC(year, monthIndex + 1, 0));
-  const toISO = (d: Date) => d.toISOString().slice(0,10);
+  const toISO = (d: Date) => d.toISOString().slice(0, 10);
   return { start: toISO(start), end: toISO(end) };
 }
 
@@ -24,70 +49,88 @@ export default function DashboardHistory() {
 
   const { start, end } = monthDateRange(year, month);
 
-  const cars = useQuery({
+  // ---- Queries (⚠️ on passe les query params dans "params")
+  const carsQ = useQuery({
     queryKey: ["cars"],
-    queryFn: () => get<Car[]>("/cars/getAllCars"),
+    queryFn: () => get<ResponseDto<Car[]>>("/cars/getAllCars"),
     staleTime: 300_000,
   });
 
-  const recettes = useQuery({
+  const recettesQ = useQuery({
     queryKey: ["recettes-month", start, end],
-    queryFn: () => get<Recette[]>("/recettes/getAllRecettes", { dateStart: start, dateEnd: end }),
+    queryFn: () =>
+      get<ResponseDto<Recette[]>>("/recettes/getAllRecettes", {
+        params: { dateStart: start, dateEnd: end },
+      }),
   });
 
-  const operations = useQuery({
+  const operationsQ = useQuery({
     queryKey: ["operations-month", start, end],
-    queryFn: () => get<Operation[]>("/operations/getAllOperations", { dateStart: start, dateEnd: end }),
+    queryFn: () =>
+      get<ResponseDto<Operation[]>>("/operations/getAllOperations", {
+        params: { dateStart: start, dateEnd: end },
+      }),
   });
 
+  // ---- Données unwrap (évite "object is not iterable")
+  const cars = unwrapArray<Car>(carsQ.data);
+  const recettes = unwrapArray<Recette>(recettesQ.data);
+  const operations = unwrapArray<Operation>(operationsQ.data);
+
+  // ---- Options de sélection véhicule
   const carOptions = React.useMemo(() => {
     return [{ label: "Tous les véhicules", value: "all" as const }].concat(
-      (cars.data ?? []).map(c => ({
+      cars.map((c) => ({
         label: `${c.referenceCar || c.ref} — ${c.marque ?? ""} ${c.modele ?? ""}`.trim(),
         value: String(c.referenceCar || c.ref || c.id),
       }))
     );
-  }, [cars.data]);
+  }, [cars]);
 
-  // Aggregate
+  // ---- Agrégation
   type Bucket = { recettes: number; charges: number; reparations: number; gain: number; prixAchat?: number };
   const perCar: Record<string, Bucket> = {};
+  const carKey = (r: { carRef?: string }) => String(r.carRef || "unknown");
 
-  const carKey = (r: {carRef?: string}) => String(r.carRef || "unknown");
-
-  for (const r of (recettes.data ?? [])) {
+  for (const r of recettes) {
     if (!r.montant) continue;
     const key = carKey(r);
-    perCar[key] = perCar[key] || { recettes:0, charges:0, reparations:0, gain:0 };
+    perCar[key] = perCar[key] || { recettes: 0, charges: 0, reparations: 0, gain: 0 };
     perCar[key].recettes += r.montant;
   }
 
-  for (const op of (operations.data ?? [])) {
+  for (const op of operations) {
     if (!op.amount) continue;
     const key = carKey(op);
-    perCar[key] = perCar[key] || { recettes:0, charges:0, reparations:0, gain:0 };
+    perCar[key] = perCar[key] || { recettes: 0, charges: 0, reparations: 0, gain: 0 };
     const t = (op.type || "").toLowerCase();
     if (t.includes("repar") || t.includes("répar")) perCar[key].reparations += op.amount;
     else perCar[key].charges += op.amount;
   }
 
-  // attach prixAchat if provided
-  for (const c of (cars.data ?? [])) {
+  // prix d'achat + gain
+  for (const c of cars) {
     const key = String(c.referenceCar || c.ref || c.id || "unknown");
-    if (!perCar[key]) perCar[key] = { recettes:0, charges:0, reparations:0, gain:0 };
+    if (!perCar[key]) perCar[key] = { recettes: 0, charges: 0, reparations: 0, gain: 0 };
     perCar[key].prixAchat = c.prixAchat;
     perCar[key].gain = perCar[key].recettes - perCar[key].charges - perCar[key].reparations;
   }
 
-  // Overall + filter by selectedCar
+  // ---- Totaux + filtre
   const keys = Object.keys(perCar);
-  const filteredKeys = selectedCar === "all" ? keys : keys.filter(k => k === selectedCar);
+  const filteredKeys = selectedCar === "all" ? keys : keys.filter((k) => k === selectedCar);
 
-  const total = filteredKeys.reduce((acc, k) => {
-    const b = perCar[k];
-    acc.recettes += b.recettes; acc.charges += b.charges; acc.reparations += b.reparations; acc.gain += b.gain;
-    return acc;
-  }, { recettes:0, charges:0, reparations:0, gain:0 });
+  const total = filteredKeys.reduce(
+    (acc, k) => {
+      const b = perCar[k];
+      acc.recettes += b.recettes;
+      acc.charges += b.charges;
+      acc.reparations += b.reparations;
+      acc.gain += b.gain;
+      return acc;
+    },
+    { recettes: 0, charges: 0, reparations: 0, gain: 0 }
+  );
 
   const donutData = [
     { name: "Recettes", value: total.recettes },
@@ -112,41 +155,70 @@ export default function DashboardHistory() {
           value={selectedCar}
           onChange={(e) => setSelectedCar(e.target.value as any)}
         >
-          {carOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+          {carOptions.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
         </select>
-        <div className="text-sm opacity-70">Période: {start} → {end}</div>
+        <div className="text-sm opacity-70">
+          Période: {start} → {end}
+        </div>
       </div>
 
-      {/* Resume global */}
+      {/* Résumé global */}
       <div className="rounded-xl border p-4">
         <div className="text-sm opacity-70">Tous les véhicules</div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div><div className="opacity-70 text-sm">Gain</div><div className="text-xl font-semibold">{(total.gain||0).toLocaleString()} FCFA</div></div>
-          <div><div className="opacity-70 text-sm">Recettes</div><div className="text-xl font-semibold">{(total.recettes||0).toLocaleString()} FCFA</div></div>
-          <div><div className="opacity-70 text-sm">Charges</div><div className="text-xl font-semibold">{(total.charges||0).toLocaleString()} FCFA</div></div>
-          <div><div className="opacity-70 text-sm">Réparations</div><div className="text-xl font-semibold">{(total.reparations||0).toLocaleString()} FCFA</div></div>
+          <div>
+            <div className="opacity-70 text-sm">Gain</div>
+            <div className="text-xl font-semibold">{(total.gain || 0).toLocaleString()} FCFA</div>
+          </div>
+          <div>
+            <div className="opacity-70 text-sm">Recettes</div>
+            <div className="text-xl font-semibold">{(total.recettes || 0).toLocaleString()} FCFA</div>
+          </div>
+          <div>
+            <div className="opacity-70 text-sm">Charges</div>
+            <div className="text-xl font-semibold">{(total.charges || 0).toLocaleString()} FCFA</div>
+          </div>
+          <div>
+            <div className="opacity-70 text-sm">Réparations</div>
+            <div className="text-xl font-semibold">{(total.reparations || 0).toLocaleString()} FCFA</div>
+          </div>
         </div>
       </div>
 
       {/* Cards par voiture */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {filteredKeys.map((k) => {
-          const car = (cars.data ?? []).find(c => String(c.referenceCar || c.ref || c.id) === k);
+          const car = cars.find((c) => String(c.referenceCar || c.ref || c.id) === k);
           const b = perCar[k];
-          const reste = (b.prixAchat ?? 0) - (b.gain);
-          const label = car ? (car.referenceCar || car.ref || "—") : k;
+          const reste = (b.prixAchat ?? 0) - b.gain;
+          const label = car ? car.referenceCar || car.ref || "—" : k;
+
+          const ratio = b.prixAchat ? Math.max(0, Math.min(100, (b.gain / b.prixAchat) * 100)) : 0;
+
           return (
             <div key={k} className="rounded-xl border p-4">
               <div className="text-orange-600 font-semibold mb-1">{label}</div>
               {b.prixAchat != null && (
-                <div className="text-sm">Achat <span className="font-semibold">{b.prixAchat.toLocaleString()} FCFA</span></div>
+                <div className="text-sm">
+                  Achat <span className="font-semibold">{b.prixAchat.toLocaleString()} FCFA</span>
+                </div>
               )}
-              <div className="text-sm">Gain <span className="font-semibold text-green-600">{b.gain.toLocaleString()} FCFA</span></div>
-              <div className="text-sm">Reste <span className="font-semibold text-red-600">{reste.toLocaleString()} FCFA</span></div>
-              <div className="h-2 bg-gray-200 rounded mt-2 overflow-hidden">
-                <div className="h-full bg-green-500" style={{ width: (b.prixAchat ? Math.min(100, (b.gain / b.prixAchat) * 100) : 0) + "%" }}></div>
+              <div className="text-sm">
+                Gain <span className="font-semibold text-green-600">{b.gain.toLocaleString()} FCFA</span>
               </div>
-              <div className="text-xs opacity-70 mt-1">{b.prixAchat ? `${((b.gain / b.prixAchat) * 100).toFixed(1)}% remboursé` : "—"}</div>
+              <div className="text-sm">
+                Reste <span className="font-semibold text-red-600">{reste.toLocaleString()} FCFA</span>
+              </div>
+              <div className="h-2 bg-gray-200 rounded mt-2 overflow-hidden">
+                <div className="h-full bg-green-500" style={{ width: `${ratio}%` }} />
+              </div>
+              <div className="text-xs opacity-70 mt-1">
+                {b.prixAchat ? `${ratio.toFixed(1)}% remboursé` : "—"}
+              </div>
             </div>
           );
         })}
@@ -158,7 +230,9 @@ export default function DashboardHistory() {
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie data={donutData} dataKey="value" nameKey="name" innerRadius={60} outerRadius={110} label>
-              {donutData.map((_, i) => <Cell key={i} />)}
+              {donutData.map((_, i) => (
+                <Cell key={i} />
+              ))}
             </Pie>
             <Tooltip />
             <Legend />

@@ -18,12 +18,12 @@ const LoginPage: React.FC = () => {
     resolver: zodResolver(LoginSchema),
     defaultValues: { username: "", password: "" },
   });
-  const setTokens = useAuthStore((s) => s.setTokens);
+  const setToken = useAuthStore((s) => s.setToken);
   const navigate = useNavigate();
   const onSubmit = async (values: LoginValues) => {
     try {
       const res = await authenticate(values);
-      setTokens(res.token, res.refreshToken);
+      setToken(res?.data?.token, res?.data?.refreshToken);
       navigate("/", { replace: true });
     } catch (e: any) {
       alert(e?.message ?? "Échec d'authentification");

@@ -1,15 +1,22 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { get } from "../../core/api/client";
-import { useVoitures } from "../../features/voitures/queries";
-import { useWeeks } from "../../features/weeks/queries";
+// si l'alias "@" n'est pas configuré, remplace par "../../../core/api/client"
+import { get } from "@/core/api/client";
+import { useVoitures } from "@/features/voitures/queries";
+import { useWeeks } from "@/features/weeks/queries";
 import { PieChart, Pie, ResponsiveContainer, Tooltip, Legend, Cell } from "recharts";
 
 type Operation = { id?: number; date: string; type: string; amount: number; carRef?: string };
 type Recette = { id?: number; date: string; montant: number; carRef: string };
+type ResponseDto<T> = { statut: boolean; message: string; data: T };
 
 function formatISO(d: Date) { return d.toISOString().slice(0,10); }
 function toDate(s: string) { return new Date(s + "T00:00:00"); }
+
+// Déballage sûr d'un ResponseDto<T[]>
+function unwrapArray<T>(resp: ResponseDto<T[]> | undefined): T[] {
+  return Array.isArray(resp?.data) ? resp!.data : [];
+}
 
 export default function DashboardAddons() {
   // default range: last 30 days
@@ -37,21 +44,29 @@ export default function DashboardAddons() {
     }
   }, [selectedWeekId, weeks.data]);
 
-  // Fetch base datasets
-  const recettes = useQuery({
+  // Fetch datasets (⚠️ ResponseDto<T[]>)
+  const recettesQ = useQuery({
     queryKey: ["addons-recettes"],
-    queryFn: () => get<Recette[]>("/recettes/getAllRecettes"),
+    queryFn: () => get<ResponseDto<Recette[]>>("/recettes/getAllRecettes"),
     staleTime: 60_000,
   });
 
-  const operations = useQuery({
+  const operationsQ = useQuery({
     queryKey: ["addons-operations"],
-    queryFn: () => get<Operation[]>("/operations/findByType", {} as any).catch(async () => {
-      // Fallback: try to get all operations if /findByType requires params or doesn't exist
-      return get<Operation[]>("/operations/getAllOperations");
-    }),
+    queryFn: async () => {
+      try {
+        return await get<ResponseDto<Operation[]>>("/operations/findByType");
+      } catch {
+        // fallback si l'endpoint exige des params ou n'existe pas
+        return await get<ResponseDto<Operation[]>>("/operations/getAllOperations");
+      }
+    },
     staleTime: 60_000,
   });
+
+  // Unwrap -> vrais arrays
+  const recettes = unwrapArray<Recette>(recettesQ.data);
+  const operations = unwrapArray<Operation>(operationsQ.data);
 
   // Client-side filtering
   const inRange = React.useCallback((iso: string) => {
@@ -60,16 +75,16 @@ export default function DashboardAddons() {
   }, [startDate, endDate]);
 
   const filteredRecettes = React.useMemo(() => {
-    let list = recettes.data ?? [];
+    let list = recettes;
     if (selectedCarRef !== "all") list = list.filter(r => r.carRef === selectedCarRef);
     return list.filter(r => inRange(r.date));
-  }, [recettes.data, selectedCarRef, inRange]);
+  }, [recettes, selectedCarRef, inRange]);
 
   const filteredOps = React.useMemo(() => {
-    let list = operations.data ?? [];
+    let list = operations;
     if (selectedCarRef !== "all") list = list.filter(o => o.carRef === selectedCarRef);
     return list.filter(o => inRange(o.date));
-  }, [operations.data, selectedCarRef, inRange]);
+  }, [operations, selectedCarRef, inRange]);
 
   // Aggregate ops by type for donut
   const donutData = React.useMemo(() => {
@@ -83,7 +98,10 @@ export default function DashboardAddons() {
 
   // CSV helpers
   function downloadCSV(filename: string, rows: any[]) {
-    const csv = [Object.keys(rows[0] ?? {}).join(","), ...rows.map(r => Object.values(r).map(v => typeof v === "string" ? `"${v.replace(/"/g,'"')}"` : v).join(","))].join("\n");
+    const csv = [
+      Object.keys(rows[0] ?? {}).join(","),
+      ...rows.map(r => Object.values(r).map(v => typeof v === "string" ? `"${v.replace(/"/g,'""')}"` : v).join(",")),
+    ].join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

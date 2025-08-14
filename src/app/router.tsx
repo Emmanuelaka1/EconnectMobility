@@ -13,6 +13,7 @@ import VoituresPage from "../features/voitures/pages/VoituresPage";
 import OperationsPage from "../features/operations/pages/OperationsPage";
 import DocumentsPage from "../features/documents/pages/DocumentsPage";
 import WeeksPage from "../features/weeks/pages/WeeksPage";
+import Login from "@/features/auth/Login";
 
 // Garde la protection pour les écrans qui nécessitent une session
 const Protected: React.FC<React.PropsWithChildren> = ({ children }) => {
@@ -22,7 +23,7 @@ const Protected: React.FC<React.PropsWithChildren> = ({ children }) => {
 };
 
 const AppRouter = createBrowserRouter([
-  { path: "/login", element: <LoginPage /> },
+  { path: "/login", element: <Login /> },
 
   // ⬇️ Topbar + Sidebar visibles pour tout le monde (invité inclus)
   {

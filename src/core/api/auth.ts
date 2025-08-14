@@ -1,9 +1,5 @@
+import { ResponseDto, UsersDto } from "@/Api/ApiDto";
 import { post } from "./client";
-
-export type AuthResponse = {
-  token: string;
-  refreshToken: string;
-};
 
 export type LoginPayload = {
   username: string;
@@ -11,9 +7,9 @@ export type LoginPayload = {
 };
 
 export function authenticate(payload: LoginPayload) {
-  return post<AuthResponse>("/users/authenticate", payload);
+  return post<ResponseDto<UsersDto>>("/users/authenticate", payload);
 }
 
 export function refreshToken(refreshToken: string) {
-  return post<AuthResponse>("/users/refreshToken", { refreshToken });
+  return post<ResponseDto<UsersDto>>("/users/refreshToken", { refreshToken });
 }

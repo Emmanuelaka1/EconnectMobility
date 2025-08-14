@@ -6,7 +6,7 @@ export interface BaseDto {
   dmodification?: string;
 }
 
-export interface ResponseDto<T = any> {
+export interface ResponseDto<T = unknown> {
   statut: boolean;
   message: string;
   data?: T;
