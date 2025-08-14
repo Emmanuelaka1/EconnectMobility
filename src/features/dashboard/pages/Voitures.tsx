@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Car, Plus, Search, Filter, Calendar, Edit, Trash2, Eye, Fuel, Settings, MapPin, Save, X } from 'lucide-react';
-import { CarDto, DocumentDto } from '../../Api/ApiDto';
+import { CarDto, DocumentDto } from '@/Api/ApiDto';
 import { carService, documentService } from '../../Api/Service';
 import { Upload, Paperclip } from 'lucide-react';
 
@@ -391,14 +391,14 @@ const VTCVoitures: React.FC = () => {
               placeholder="Rechercher par référence, marque, modèle..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           
           <select
             value={selectedMarque}
             onChange={(e) => setSelectedMarque(e.target.value)}
-            className="px-4 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Toutes les marques</option>
             {marques.map(marque => (
@@ -406,7 +406,7 @@ const VTCVoitures: React.FC = () => {
             ))}
           </select>
           
-          <select className="px-4 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <select className="px-4 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             <option value="">Tous les carburants</option>
             <option value="Essence">Essence</option>
             <option value="Diesel">Diesel</option>
@@ -558,7 +558,7 @@ const VTCVoitures: React.FC = () => {
                     value={formData.immatriculation || ''}
                     onChange={(e) => setFormData({...formData, immatriculation: e.target.value})}
                     placeholder="Ex: ABC-123-DE"
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 
@@ -571,7 +571,7 @@ const VTCVoitures: React.FC = () => {
                     value={formData.marque || ''}
                     onChange={(e) => setFormData({...formData, marque: e.target.value})}
                     placeholder="Ex: BMW"
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 
@@ -584,7 +584,7 @@ const VTCVoitures: React.FC = () => {
                     value={formData.modele || ''}
                     onChange={(e) => setFormData({...formData, modele: e.target.value})}
                     placeholder="Ex: X5"
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 
@@ -597,7 +597,7 @@ const VTCVoitures: React.FC = () => {
                     value={formData.couleur || ''}
                     onChange={(e) => setFormData({...formData, couleur: e.target.value})}
                     placeholder="Ex: Noir"
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 
@@ -608,7 +608,7 @@ const VTCVoitures: React.FC = () => {
                   <select
                     value={formData.carburant || ''}
                     onChange={(e) => setFormData({...formData, carburant: e.target.value})}
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Sélectionner</option>
                     <option value="Essence">Essence</option>
@@ -627,7 +627,7 @@ const VTCVoitures: React.FC = () => {
                     value={formData.anneeAchat || ''}
                     onChange={(e) => setFormData({...formData, anneeAchat: e.target.value})}
                     placeholder="Ex: 2023"
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 
@@ -640,7 +640,7 @@ const VTCVoitures: React.FC = () => {
                     value={formData.kilometrage || ''}
                     onChange={(e) => setFormData({...formData, kilometrage: e.target.value})}
                     placeholder="Ex: 45000"
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 
@@ -653,7 +653,7 @@ const VTCVoitures: React.FC = () => {
                     value={formData.prixAchat || ''}
                     onChange={(e) => setFormData({...formData, prixAchat: parseFloat(e.target.value) || 0})}
                     placeholder="Ex: 65000"
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 
@@ -665,7 +665,7 @@ const VTCVoitures: React.FC = () => {
                     type="date"
                     value={formData.dateAchat || ''}
                     onChange={(e) => setFormData({...formData, dateAchat: e.target.value})}
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 
@@ -677,7 +677,7 @@ const VTCVoitures: React.FC = () => {
                     type="date"
                     value={formData.dateMiseEnCirculation || ''}
                     onChange={(e) => setFormData({...formData, dateMiseEnCirculation: e.target.value})}
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>

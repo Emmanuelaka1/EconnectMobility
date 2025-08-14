@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CreditCard, Plus, Search, Filter, Calendar, FileText, Edit, Trash2, Eye, TrendingDown, TrendingUp, Save, X, Upload, Paperclip } from 'lucide-react';
-import { OperationDto, DocumentDto } from '../../Api/ApiDto';
+import { OperationDto, DocumentDto } from '@/Api/ApiDto';
 import { operationService, documentService } from '../../Api/Service';
 
 const VTCOperations: React.FC = () => {
@@ -500,14 +500,14 @@ const VTCOperations: React.FC = () => {
               placeholder="Rechercher..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="px-4 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Tous les types</option>
             <option value="Recette">Recettes</option>
@@ -517,7 +517,7 @@ const VTCOperations: React.FC = () => {
           <select
             value={selectedParentType}
             onChange={(e) => setSelectedParentType(e.target.value)}
-            className="px-4 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Tous les parents</option>
             {parentTypes.map(type => (
@@ -528,7 +528,7 @@ const VTCOperations: React.FC = () => {
           <select
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value)}
-            className="px-4 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Toutes les périodes</option>
             <option value="today">Aujourd'hui</option>
@@ -687,7 +687,7 @@ const VTCOperations: React.FC = () => {
                     type="date"
                     value={formData.dateOperation || ''}
                     onChange={(e) => setFormData({...formData, dateOperation: e.target.value})}
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 
@@ -698,7 +698,7 @@ const VTCOperations: React.FC = () => {
                   <select
                     value={formData.typeOperation || ''}
                     onChange={(e) => setFormData({...formData, typeOperation: e.target.value})}
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Sélectionner</option>
                     <option value="Recette">Recette</option>
@@ -714,7 +714,7 @@ const VTCOperations: React.FC = () => {
                     value={formData.typeDepense || ''}
                     onChange={(e) => setFormData({...formData, typeDepense: e.target.value})}
                     disabled={formData.typeOperation === 'Recette'}
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
                   >
                     <option value="">Sélectionner</option>
                     <option value="Carburant">Carburant</option>
@@ -736,7 +736,7 @@ const VTCOperations: React.FC = () => {
                     value={formData.amount || ''}
                     onChange={(e) => setFormData({...formData, amount: parseFloat(e.target.value) || 0})}
                     placeholder="Ex: 85.50"
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 
@@ -749,7 +749,7 @@ const VTCOperations: React.FC = () => {
                     value={formData.parentId || ''}
                     onChange={(e) => setFormData({...formData, parentId: e.target.value})}
                     placeholder="Ex: CAR-001"
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 
@@ -760,7 +760,7 @@ const VTCOperations: React.FC = () => {
                   <select
                     value={formData.parentType || ''}
                     onChange={(e) => setFormData({...formData, parentType: e.target.value})}
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Sélectionner</option>
                     <option value="Voiture">Voiture</option>
@@ -778,7 +778,7 @@ const VTCOperations: React.FC = () => {
                     value={formData.documentId || ''}
                     onChange={(e) => setFormData({...formData, documentId: e.target.value})}
                     placeholder="Ex: DOC-001"
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 
@@ -791,7 +791,7 @@ const VTCOperations: React.FC = () => {
                     value={formData.referenceTransaction || ''}
                     onChange={(e) => setFormData({...formData, referenceTransaction: e.target.value})}
                     placeholder="Ex: REF-001"
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -805,7 +805,7 @@ const VTCOperations: React.FC = () => {
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
                   placeholder="Description de l'opération..."
                   rows={3}
-                  className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               

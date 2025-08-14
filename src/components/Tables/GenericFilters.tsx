@@ -25,7 +25,7 @@ const GenericFilters: React.FC<GenericFiltersProps> = ({ searchValue, onSearchCh
             placeholder="Rechercher..."
             value={searchValue}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
         
@@ -34,7 +34,7 @@ const GenericFilters: React.FC<GenericFiltersProps> = ({ searchValue, onSearchCh
             key={idx}
             value={sel.value}
             onChange={sel.onChange}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             {sel.options.map(opt => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>

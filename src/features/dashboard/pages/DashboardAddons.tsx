@@ -133,7 +133,7 @@ export default function DashboardAddons() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 space-y-6">
       {/* Filters */}
       <div className="p-4 rounded-xl border grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>

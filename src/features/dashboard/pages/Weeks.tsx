@@ -250,14 +250,14 @@ const VTCWeeks: React.FC = () => {
               placeholder="Rechercher par semaine ou date..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           
           <select
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value)}
-            className="px-4 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Toutes les périodes</option>
             <option value="current">Semaine actuelle</option>
@@ -387,7 +387,7 @@ const VTCWeeks: React.FC = () => {
                   value={formData.week}
                   onChange={(e) => setFormData({...formData, week: e.target.value})}
                   placeholder="Ex: S06-2024"
-                  className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               
@@ -399,7 +399,7 @@ const VTCWeeks: React.FC = () => {
                   type="date"
                   value={formData.dateStart}
                   onChange={(e) => setFormData({...formData, dateStart: e.target.value})}
-                  className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               
@@ -411,7 +411,7 @@ const VTCWeeks: React.FC = () => {
                   type="date"
                   value={formData.dateEnd}
                   onChange={(e) => setFormData({...formData, dateEnd: e.target.value})}
-                  className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>

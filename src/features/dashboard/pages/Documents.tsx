@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FolderOpen, Plus, Search, Filter, Calendar, Download, Edit, Trash2, Eye, FileText, Image, File } from 'lucide-react';
-import TableHeader from '../Tables/TableHeader';
+import TableHeader from '@/components/Tables/TableHeader';
 
 
 const VTCDocuments: React.FC = () => {
@@ -197,20 +197,20 @@ const VTCDocuments: React.FC = () => {
           </div>
           
           <select
-            value={selectedType}
-            onChange={(e) => setSelectedType(e.target.value)}
-            className="px-4 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="">Tous les types</option>
-            <option value="PDF">PDF</option>
-            <option value="JPG">Images</option>
-            <option value="DOC">Documents</option>
-          </select>
+          value={selectedType}
+          onChange={(e) => setSelectedType(e.target.value)}
+          className="px-4 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="">Tous les types</option>
+          <option value="PDF">PDF</option>
+          <option value="JPG">Images</option>
+          <option value="DOC">Documents</option>
+        </select>
           
           <select
             value={selectedParent}
             onChange={(e) => setSelectedParent(e.target.value)}
-            className="px-4 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Toutes les catégories</option>
             <option value="Voiture">Voitures</option>

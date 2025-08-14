@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { DollarSign, Plus, Search, Filter, Calendar, Car, Edit, Trash2, Eye, Save, X } from 'lucide-react';
-import { RecetteDto, CarDto } from '../../Api/ApiDto';
-import { recetteService, carService } from '../../Api/Service';
+import { CarDto, RecetteDto } from '@/Api/ApiDto';
 
 const VTCRecettes: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -411,14 +410,14 @@ const VTCRecettes: React.FC = () => {
               placeholder="Rechercher..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           
           <select
             value={selectedWeek}
             onChange={(e) => setSelectedWeek(e.target.value)}
-            className="px-4 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Toutes les semaines</option>
             {weeks.map(week => (
@@ -429,7 +428,7 @@ const VTCRecettes: React.FC = () => {
           <select
             value={selectedCar}
             onChange={(e) => setSelectedCar(e.target.value)}
-            className="px-4 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Toutes les voitures</option>
             {voitures.map(car => (
@@ -581,7 +580,7 @@ const VTCRecettes: React.FC = () => {
                       const selectedCar = voitures.find(v => v.referenceCar === e.target.value);
                       setFormData({...formData, car: selectedCar});
                     }}
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Sélectionner une voiture</option>
                     {voitures.map(car => (
@@ -602,7 +601,7 @@ const VTCRecettes: React.FC = () => {
                     value={formData.amount || ''}
                     onChange={(e) => setFormData({...formData, amount: parseFloat(e.target.value) || 0})}
                     placeholder="Ex: 245.50"
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 
@@ -614,7 +613,7 @@ const VTCRecettes: React.FC = () => {
                     type="date"
                     value={formData.dateRecette || ''}
                     onChange={(e) => setFormData({...formData, dateRecette: e.target.value})}
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 
@@ -627,7 +626,7 @@ const VTCRecettes: React.FC = () => {
                     value={formData.week || ''}
                     onChange={(e) => setFormData({...formData, week: e.target.value})}
                     placeholder="Ex: S03-2024"
-                    className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -641,7 +640,7 @@ const VTCRecettes: React.FC = () => {
                   onChange={(e) => setFormData({...formData, commentRecette: e.target.value})}
                   placeholder="Description de la course..."
                   rows={3}
-                  className="w-full px-3 py-2 border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>

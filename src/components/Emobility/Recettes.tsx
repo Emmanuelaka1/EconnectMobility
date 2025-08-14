@@ -63,7 +63,7 @@ const Recettes: React.FC = () => {
   const onDelete = (r: Recette) => setRecettes(prev => prev.filter(x => x.id !== r.id));
   
   return (
-    <div className="space-y-6">
+    <div className="p-4 space-y-6">
       {/* HEADER */}
       <GenericHeader
         title="Recettes VTC"

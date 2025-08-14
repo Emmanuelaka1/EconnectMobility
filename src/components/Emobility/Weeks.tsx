@@ -119,7 +119,7 @@ const Weeks: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className=" p-2 space-y-6">
       <GenericHeader
         title="Semaines VTC"
         subtitle="Gestion et suivi de vos semaines"

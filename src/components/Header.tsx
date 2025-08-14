@@ -41,7 +41,7 @@ const Header: React.FC<HeaderProps> = ({ isCollapsed, setIsCollapsed }) => {
             <input
               type="text"
               placeholder="Search properties, clients..."
-              className="pl-10 pr-4 py-2 w-80 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-gray-400"
+              className="pl-10 pr-4 py-2 w-80 bg-gray-700 border border-gray-600 rounded-lg text-gray-800 focus:ring-2 focus:ring-red-500 focus:border-transparent text-white placeholder-gray-400"
             />
           </div>
         </div>

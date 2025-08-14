@@ -25,7 +25,6 @@ export default function UserMenu() {
     setOpen(false);
     navigate("/login");
   };
-console.log("UserMenu rendered", useAuthStore());
   const fullName = user?.username ?? "Invité";
   const role = user?.role ?? "Guest";
 
@@ -37,10 +36,12 @@ console.log("UserMenu rendered", useAuthStore());
         aria-haspopup="menu"
         aria-expanded={open}
       >
-        <UserAvatar name={fullName} url={user?.avatarUrl ?? undefined} size={32} />
+        <UserAvatar name={fullName} size={32} />
         <div className="text-left hidden sm:block">
           <div className="text-sm font-medium text-slate-100 leading-4">{fullName}</div>
-          <div className="text-xs text-slate-400">{role}</div>
+          <p className="p-1 text-xs text-slate-300 text-green-300 leading-3">
+            {role} {'=>'} {new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+          </p>
         </div>
         <svg
           className={`h-4 w-4 text-slate-300 transition-transform ${open ? "rotate-180" : ""}`}

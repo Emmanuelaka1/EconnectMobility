@@ -6,13 +6,13 @@ import { useAuthStore } from "@/core/auth/auth.store";
 import AppShell from "@/components/layout/AppShell";
 
 // ✅ Tes pages
-import DashboardComposite from "@/features/dashboard/pages/DashboardComposite";
 import Login from "@/features/auth/Login";
-import RecettesPage from "@/components/VTC/VTCRecettes";
-import VoituresPage from "@/components/VTC/VTCVoitures";
-import OperationsPage from "@/components/VTC/VTCOperations";
-import DocumentsPage from "@/components/VTC/VTCDocuments";
-import WeeksPage from "@/components/VTC/VTCWeeks";
+import Recettes from "@/features/dashboard/pages/Recettes";
+import Voitures from "@/features/dashboard/pages/Voitures";
+import Operations from "@/features/dashboard/pages/Operations";
+import Documents from "@/features/dashboard/pages/Documents";
+import Weeks from "@/features/dashboard/pages/Weeks";
+import Dashboard from "@/features/dashboard/pages/Dashboard";
 
 
 // Garde la protection pour les écrans qui nécessitent une session
@@ -32,37 +32,37 @@ const AppRouter = createBrowserRouter([
     children: [
       { index: true, element: (
           <Protected>
-            <DashboardComposite />
+            <Dashboard />
           </Protected>
         )
       },
       { path: "recettes", element: (
           <Protected>
-            <RecettesPage />
+            <Recettes />
           </Protected>
         )
       },
       { path: "voitures", element: (
           <Protected>
-            <VoituresPage />
+            <Voitures />
           </Protected>
         )
       },
       { path: "operations", element: (
           <Protected>
-            <OperationsPage />
+            <Operations />
           </Protected>
         )
       },
       { path: "weeks", element: (
           <Protected>
-            <WeeksPage />
+            <Weeks />
           </Protected>
         )
       },
       { path: "documents", element: (
           <Protected>
-            <DocumentsPage />
+            <Documents />
           </Protected>
         )
       },
