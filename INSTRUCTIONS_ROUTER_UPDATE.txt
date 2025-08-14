@@ -1,0 +1,4 @@
+﻿// Ã‰tapes pour brancher la Topbar via AppShell :
+// 1) Ouvrez votre fichier de router existant (ex: src/app/router.tsx).
+// 2) Importez AppShell :  import AppShell from "@/components/layout/AppShell";
+// 3) Remplacez l'Ã©lÃ©ment de la route racine par <AppShell /> et gardez vos enfants (pages) inchangÃ©s.
