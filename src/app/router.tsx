@@ -1,19 +1,19 @@
 import React from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { useAuthStore } from "../core/auth/auth.store";
+import { useAuthStore } from "@/core/auth/auth.store";
 
 // ✅ AppShell = Sidebar + Topbar (nouveau layout)
-import AppShell from "../components/layout/AppShell";
+import AppShell from "@/components/layout/AppShell";
 
 // ✅ Tes pages
-import LoginPage from "../features/auth/LoginPage";
-import DashboardComposite from "../features/dashboard/pages/DashboardComposite";
-import RecettesPage from "../features/recettes/pages/RecettesPage";
-import VoituresPage from "../features/voitures/pages/VoituresPage";
-import OperationsPage from "../features/operations/pages/OperationsPage";
-import DocumentsPage from "../features/documents/pages/DocumentsPage";
-import WeeksPage from "../features/weeks/pages/WeeksPage";
+import DashboardComposite from "@/features/dashboard/pages/DashboardComposite";
 import Login from "@/features/auth/Login";
+import RecettesPage from "@/components/VTC/VTCRecettes";
+import VoituresPage from "@/components/VTC/VTCVoitures";
+import OperationsPage from "@/components/VTC/VTCOperations";
+import DocumentsPage from "@/components/VTC/VTCDocuments";
+import WeeksPage from "@/components/VTC/VTCWeeks";
+
 
 // Garde la protection pour les écrans qui nécessitent une session
 const Protected: React.FC<React.PropsWithChildren> = ({ children }) => {

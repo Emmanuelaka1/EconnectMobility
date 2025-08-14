@@ -11,7 +11,7 @@ const Sidebar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(() => localStorage.getItem("sidebarOpen") !== "false");
   const activePath = location.pathname;
 
-  const { token, user, logout } = useAuthStore();
+  const { token, logout } = useAuthStore();
 
   useEffect(() => { localStorage.setItem("sidebarOpen", String(isOpen)); }, [isOpen]);
 
@@ -25,18 +25,7 @@ const Sidebar: React.FC = () => {
       </div>
 
       <nav className="flex-1 p-4" aria-label="Navigation principale">
-        <div className="mb-3">
-          {token ? (
-            <span className="inline-flex items-center text-xs px-2 py-1 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-              Connecté{user?.name ? ` : ${user.name}` : ""}
-            </span>
-          ) : (
-            <span className="inline-flex items-center text-xs px-2 py-1 rounded bg-yellow-500/15 text-yellow-300 border border-yellow-500/30">
-              Mode invité (non connecté)
-            </span>
-          )}
-        </div>
-
+      
         <ul className="space-y-2">
           {menuItems.map((item) => {
             const Icon = item.icon as any;

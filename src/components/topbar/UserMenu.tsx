@@ -2,6 +2,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/core/auth/auth.store"; // si pas d'alias "@", remplace par "../../core/auth/auth.store"
 import UserAvatar from "./UserAvatar";
+import { Euro, Lock, LogOut } from "lucide-react";
 
 export default function UserMenu() {
   const { user, token, logout } = useAuthStore();
@@ -68,7 +69,7 @@ console.log("UserMenu rendered", useAuthStore());
               className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-200 hover:bg-white/5"
               onClick={() => setOpen(false)}
             >
-              <span className="inline-block h-5 w-5">📊</span>
+              <Euro className="w-4 h-4" />
               Suivi Recette
             </Link>
 
@@ -82,19 +83,26 @@ console.log("UserMenu rendered", useAuthStore());
                 Se connecter
               </Link>
             )}
-
-            {isAuth && (
+            <button className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 transition-colors duration-150">
+              <Lock className="w-4 h-4" />
+              <span>Lock screen</span>
+            </button>
+          </div>
+          {isAuth && (
+              <div className="border-t border-gray-700">
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-rose-300 hover:bg-rose-500/10"
+                className="w-full flex items-center space-x-3 px-4 py-2 text-md text-red-400 hover:bg-gray-700 transition-colors duration-150"
               >
-                <span className="inline-block h-5 w-5">↩️</span>
-                Logout
+                 <LogOut className="w-5 h-5" />
+                 <span>Logout</span>
               </button>
+            </div>
             )}
-          </div>
         </div>
       )}
     </div>
   );
+
+  
 }

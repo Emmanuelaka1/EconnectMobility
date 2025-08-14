@@ -6,7 +6,7 @@ const queryClient = new QueryClient({
       // évite des refetch trop agressifs, à adapter
       refetchOnWindowFocus: false,
       retry: 1,
-      staleTime: 30_000,
+      staleTime: 200_000,
     },
   },
 });

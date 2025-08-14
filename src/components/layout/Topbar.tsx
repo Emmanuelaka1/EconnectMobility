@@ -1,8 +1,9 @@
 ﻿import ConnectionBadge from "@/components/topbar/ConnectionBadge";
 import UserMenu from "@/components/topbar/UserMenu";
+import { Bell } from "lucide-react";
 export default function Topbar() {
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-white/10 bg-slate-950/80 backdrop-blur">
+    <header className="bg-gray-800 border-b border-gray-200 px-4 py-2">
       <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
         <div className="h-14 flex items-center justify-between gap-3">
           <div className="flex-1 min-w-0">
@@ -11,10 +12,13 @@ export default function Topbar() {
               <input placeholder="Search " className="bg-transparent placeholder-slate-500 text-slate-200 outline-none w-full" />
             </div>
           </div>
-          <div className="hidden sm:block"><ConnectionBadge /></div>
           <div className="flex items-center gap-3">
-            <button className="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-lg hover:bg-white/5"><span aria-hidden></span><span className="sr-only">Notifications</span></button>
-            <UserMenu />
+          <ConnectionBadge />
+          <button className="relative p-2 rounded-lg hover:bg-gray-700 transition-colors duration-200">
+            <Bell className="w-5 h-5 text-gray-300" />
+            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+          </button>
+          <UserMenu />
           </div>
         </div>
       </div>
