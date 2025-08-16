@@ -1,6 +1,7 @@
 import React from "react";
 import { useRecettes, useDeleteRecette } from "../queries";
 import RecetteForm from "../components/RecetteForm";
+import { formatCurrencyFull } from "@/utils/format";
 
 const RecettesPage: React.FC = () => {
   const { data, isLoading, error } = useRecettes({});
@@ -24,7 +25,7 @@ const RecettesPage: React.FC = () => {
             <li key={r.id} className="flex items-center justify-between p-3 rounded-lg border">
               <div>
                 <div className="font-medium">{r.date} — {r.carRef}</div>
-                <div className="text-sm opacity-80">{r.montant?.toLocaleString()} FCFA</div>
+                <div className="text-sm opacity-80">{formatCurrencyFull(r.montant || 0)}</div>
               </div>
               {r.id && (
                 <button className="btn btn-sm" onClick={() => del.mutate(r.id!)}>

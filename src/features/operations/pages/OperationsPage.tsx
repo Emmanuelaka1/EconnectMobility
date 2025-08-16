@@ -1,6 +1,7 @@
 import React from "react";
 import { useOperations, useDeleteOperation } from "../queries";
 import OperationForm from "../components/OperationForm";
+import { formatCurrencyFull } from "@/utils/format";
 
 const OperationsPage: React.FC = () => {
   const { data, isLoading, error } = useOperations({});
@@ -22,7 +23,7 @@ const OperationsPage: React.FC = () => {
             <li key={op.id ?? op.reference} className="flex items-center justify-between p-3 rounded-lg border">
               <div>
                 <div className="font-medium">{op.date} — {op.type}</div>
-                <div className="text-sm opacity-80">{op.amount?.toLocaleString()} FCFA</div>
+                <div className="text-sm opacity-80">{formatCurrencyFull(op.amount || 0)}</div>
               </div>
               {op.id && (
                 <button className="px-3 py-1 rounded border" onClick={() => del.mutate(op.id!)}>
