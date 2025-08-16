@@ -57,7 +57,7 @@ export interface DocumentDto extends BaseDto {
 
 export interface RecetteDto extends BaseDto {
   readonly idrecette?: number;
-  car?: CarDto;
+  referencecar?: string;
   amount?: number;
   dateRecette?: string;
   commentRecette?: string;

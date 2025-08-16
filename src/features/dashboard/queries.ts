@@ -56,7 +56,7 @@ export function useDashboardVehicles() {
       const recettes = (recettesRes.data ?? []) as RecetteDto[];
       const recettesByCar: Record<string, number> = {};
       recettes.forEach((r) => {
-        const ref = r.car?.referenceCar;
+        const ref = r.referencecar;
         if (!ref) return;
         recettesByCar[ref] = (recettesByCar[ref] ?? 0) + (r.amount ?? 0);
       });

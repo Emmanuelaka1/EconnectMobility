@@ -211,60 +211,6 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Gérer ma flotte */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-6">Gérer ma flotte</h2>
-        
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-gray-100 rounded-xl p-4 flex items-center space-x-3 hover:bg-gray-200 transition-colors cursor-pointer">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <Users className="w-6 h-6 text-blue-600" />
-            </div>
-            <div>
-              <p className="font-medium text-gray-800">Mes</p>
-              <p className="font-medium text-gray-800">Chauffeurs (1)</p>
-            </div>
-          </div>
-
-          <div className="bg-gray-100 rounded-xl p-4 flex items-center space-x-3 hover:bg-gray-200 transition-colors cursor-pointer">
-            <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-              <Car className="w-6 h-6 text-yellow-600" />
-            </div>
-            <div>
-              <p className="font-medium text-gray-800">Mes</p>
-              <p className="font-medium text-gray-800">véhicules ({vehiclesData?.length ?? 0})</p>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl p-4 flex items-center space-x-3 cursor-pointer">
-            <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-              <Coins className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <p className="font-medium text-white">Mes recettes</p>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-red-400 to-pink-500 rounded-xl p-4 flex items-center space-x-3 cursor-pointer">
-            <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-              <CreditCard className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <p className="font-medium text-white">Mes charges</p>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-blue-400 to-purple-500 rounded-xl p-4 flex items-center space-x-3 cursor-pointer lg:col-start-4">
-            <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-              <Wrench className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <p className="font-medium text-white">Mes réparations</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Total cumulé par véhicule */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-6">
@@ -340,6 +286,60 @@ const Dashboard: React.FC = () => {
             <div className="text-center">
               <p className="text-sm text-gray-500">Total Reste</p>
               <p className="text-lg font-bold text-red-600">{formatCurrencyFull(totalReste)}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Gérer ma flotte */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h2 className="text-xl font-bold text-gray-800 mb-6">Gérer ma flotte</h2>
+        
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-gray-100 rounded-xl p-4 flex items-center space-x-3 hover:bg-gray-200 transition-colors cursor-pointer">
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <Users className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <p className="font-medium text-gray-800">Mes</p>
+              <p className="font-medium text-gray-800">Chauffeurs (1)</p>
+            </div>
+          </div>
+
+          <div className="bg-gray-100 rounded-xl p-4 flex items-center space-x-3 hover:bg-gray-200 transition-colors cursor-pointer">
+            <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+              <Car className="w-6 h-6 text-yellow-600" />
+            </div>
+            <div>
+              <p className="font-medium text-gray-800">Mes</p>
+              <p className="font-medium text-gray-800">véhicules ({vehiclesData?.length ?? 0})</p>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl p-4 flex items-center space-x-3 cursor-pointer">
+            <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+              <Coins className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <p className="font-medium text-white">Mes recettes</p>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-red-400 to-pink-500 rounded-xl p-4 flex items-center space-x-3 cursor-pointer">
+            <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+              <CreditCard className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <p className="font-medium text-white">Mes charges</p>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-blue-400 to-purple-500 rounded-xl p-4 flex items-center space-x-3 cursor-pointer lg:col-start-4">
+            <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+              <Wrench className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <p className="font-medium text-white">Mes réparations</p>
             </div>
           </div>
         </div>
