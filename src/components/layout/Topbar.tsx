@@ -23,12 +23,15 @@ export default function Topbar() {
           </div>
 
           <div className="flex items-center gap-3">
-             <ConnectionBadge />
-          <button className="relative p-2 rounded-lg hover:bg-gray-700 transition-colors duration-200">
-            <Bell className="w-5 h-5 text-gray-300" />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-          </button>
-          <UserMenu />
+            <ConnectionBadge />
+            <button
+              className="relative p-2 rounded-lg hover:bg-gray-800 transition-colors"
+              aria-label="Notifications"
+            >
+              <Bell className="w-5 h-5 text-gray-300" />
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
+            </button>
+            <UserMenu />
           </div>
         </div>
       </div>
