@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { get } from "../../core/api/client";
+import { carService, recetteService } from "@/core/api/webService";
+import type { CarDto, RecetteDto } from "@/core/api/dataContratDto";
 
 export type WeeklyStat = {
   label: string;
@@ -45,7 +47,27 @@ export function useDashboardWeekly(params: Record<string, unknown>) {
 export function useDashboardVehicles() {
   return useQuery({
     queryKey: ["dashboardVehicles"],
-    queryFn: () => get<VehicleStat[]>("/dashboard/vehicles"),
+    queryFn: async () => {
+      const [carsRes, recettesRes] = await Promise.all([
+        carService.getAllCars(),
+        recetteService.getAllRecettes(),
+      ]);
+      const cars = (carsRes.data ?? []) as CarDto[];
+      const recettes = (recettesRes.data ?? []) as RecetteDto[];
+      const recettesByCar: Record<string, number> = {};
+      recettes.forEach((r) => {
+        const ref = r.car?.referenceCar;
+        if (!ref) return;
+        recettesByCar[ref] = (recettesByCar[ref] ?? 0) + (r.amount ?? 0);
+      });
+      return cars.map((car) => {
+        const reference = car.referenceCar ?? "";
+        const achat = car.prixAchat ?? 0;
+        const gain = recettesByCar[reference] ?? 0;
+        const reste = achat - gain;
+        return { reference, achat, gain, reste } as VehicleStat;
+      });
+    },
     staleTime: 60_000,
   });
 }

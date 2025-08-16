@@ -12,7 +12,7 @@ import {
   Receipt,
 } from 'lucide-react';
 import PieChart from '@/components/PieChart';
-import { formatCurrency, formatCurrencyFull } from '@/utils/format';
+import { formatCurrencyFull } from '@/utils/format';
 import { useDashboardMonthly, useDashboardVehicles, WeeklyStat } from '../queries';
 import { recetteService } from '@/core/api/webService';
 import { RecetteDto, WeekDto } from '@/core/api/dataContratDto';
@@ -23,6 +23,8 @@ const Dashboard: React.FC = () => {
   const [selectedMonth, setSelectedMonth] = useState('Août');
   const [weeks, setWeeks] = useState<WeekDto[]>([]);
   const [weeklyData, setWeeklyData] = useState<Record<string, WeeklyStat>>({});
+  const [vehicleIndex, setVehicleIndex] = useState(0);
+  const vehiclesPerPage = 3;
 
   useEffect(() => {
     const allWeeks = getWeeksOfYear(new Date().getFullYear());
@@ -60,6 +62,20 @@ const Dashboard: React.FC = () => {
   //A chaque fois que l'utilisateur change de mois, on met à jour les recettes par véhicule
   const { data: vehiclesData } = useDashboardVehicles();
   const { data: monthlyHistory } = useDashboardMonthly(selectedMonth);
+
+  const visibleVehicles =
+    vehiclesData?.slice(vehicleIndex, vehicleIndex + vehiclesPerPage) ?? [];
+  const canPrevVehicle = vehicleIndex > 0;
+  const canNextVehicle =
+    vehiclesData ? vehicleIndex + vehiclesPerPage < vehiclesData.length : false;
+
+  const navigateVehicles = (direction: 'prev' | 'next') => {
+    if (direction === 'prev' && canPrevVehicle) {
+      setVehicleIndex((i) => Math.max(0, i - vehiclesPerPage));
+    } else if (direction === 'next' && canNextVehicle) {
+      setVehicleIndex((i) => i + vehiclesPerPage);
+    }
+  };
 
   const currentWeekData =
     selectedWeek && weeklyData[selectedWeek.week]
@@ -251,10 +267,28 @@ const Dashboard: React.FC = () => {
 
       {/* Total cumulé par véhicule */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-6">Total cumulé</h2>
-        
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-gray-800">Total cumulé</h2>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => navigateVehicles('prev')}
+              disabled={!canPrevVehicle}
+              className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50"
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-600" />
+            </button>
+            <button
+              onClick={() => navigateVehicles('next')}
+              disabled={!canNextVehicle}
+              className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50"
+            >
+              <ChevronRight className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {(vehiclesData ?? []).map((vehicle, index) => (
+          {visibleVehicles.map((vehicle) => (
             <div key={vehicle.reference} className="border border-orange-200 rounded-xl p-4">
               <h3 className="text-lg font-bold text-orange-600 mb-4">{vehicle.reference}</h3>
               
