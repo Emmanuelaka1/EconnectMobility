@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 // ⚠️ si l'alias "@" n'est pas configuré, remplace par: "../../../core/api/client"
 import { get } from "@/core/api/client";
 import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
+import { formatCurrencyFull } from "@/utils/format";
 
 // ---- Types API
 type Car = {
@@ -172,19 +173,19 @@ export default function DashboardHistory() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <div className="opacity-70 text-sm">Gain</div>
-            <div className="text-xl font-semibold">{(total.gain || 0).toLocaleString()} FCFA</div>
+            <div className="text-xl font-semibold">{formatCurrencyFull(total.gain || 0)}</div>
           </div>
           <div>
             <div className="opacity-70 text-sm">Recettes</div>
-            <div className="text-xl font-semibold">{(total.recettes || 0).toLocaleString()} FCFA</div>
+            <div className="text-xl font-semibold">{formatCurrencyFull(total.recettes || 0)}</div>
           </div>
           <div>
             <div className="opacity-70 text-sm">Charges</div>
-            <div className="text-xl font-semibold">{(total.charges || 0).toLocaleString()} FCFA</div>
+            <div className="text-xl font-semibold">{formatCurrencyFull(total.charges || 0)}</div>
           </div>
           <div>
             <div className="opacity-70 text-sm">Réparations</div>
-            <div className="text-xl font-semibold">{(total.reparations || 0).toLocaleString()} FCFA</div>
+            <div className="text-xl font-semibold">{formatCurrencyFull(total.reparations || 0)}</div>
           </div>
         </div>
       </div>
@@ -204,14 +205,14 @@ export default function DashboardHistory() {
               <div className="text-orange-600 font-semibold mb-1">{label}</div>
               {b.prixAchat != null && (
                 <div className="text-sm">
-                  Achat <span className="font-semibold">{b.prixAchat.toLocaleString()} FCFA</span>
+                  Achat <span className="font-semibold">{formatCurrencyFull(b.prixAchat ?? 0)}</span>
                 </div>
               )}
               <div className="text-sm">
-                Gain <span className="font-semibold text-green-600">{b.gain.toLocaleString()} FCFA</span>
+                Gain <span className="font-semibold text-green-600">{formatCurrencyFull(b.gain)}</span>
               </div>
               <div className="text-sm">
-                Reste <span className="font-semibold text-red-600">{reste.toLocaleString()} FCFA</span>
+                Reste <span className="font-semibold text-red-600">{formatCurrencyFull(reste)}</span>
               </div>
               <div className="h-2 bg-gray-200 rounded mt-2 overflow-hidden">
                 <div className="h-full bg-green-500" style={{ width: `${ratio}%` }} />

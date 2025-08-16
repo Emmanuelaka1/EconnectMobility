@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { 
   Car, 
@@ -11,6 +12,7 @@ import {
   Receipt,
 } from 'lucide-react';
 import PieChart from '@/components/PieChart';
+
 import { useDashboardMonthly, useDashboardVehicles, useDashboardWeekly } from '../queries';
 
 const Dashboard: React.FC = () => {
@@ -28,7 +30,6 @@ const Dashboard: React.FC = () => {
       setSelectedWeek(weeks[0]);
     }
   }, [weeks, selectedWeek]);
-
   const currentWeekData =
     weeklyData?.find((w) => w.label === selectedWeek) ?? {
       gain: 0,
@@ -66,14 +67,6 @@ const Dashboard: React.FC = () => {
       color: '#F59E0B',
     },
   ];
-
-  const formatCurrency = (amount: number) => {
-    return `${(amount / 1000).toLocaleString()} FCFA`;
-  };
-
-  const formatCurrencyFull = (amount: number) => {
-    return `${amount.toLocaleString()} FCFA`;
-  };
 
   const getPercentage = (value: number, total: number) => {
     if (total === 0) return 0;
