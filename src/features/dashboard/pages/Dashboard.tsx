@@ -11,6 +11,7 @@ import {
   Receipt,
 } from 'lucide-react';
 import PieChart from '@/components/PieChart';
+import { formatCurrency, formatCurrencyFull } from '@/utils/format';
 
 // Données par défaut simulées pour le tableau de bord
 const weeklyDataDefault = {
@@ -181,14 +182,6 @@ const Dashboard: React.FC = () => {
       color: '#F59E0B'
     }
   ];
-
-  const formatCurrency = (amount: number) => {
-    return `${(amount / 1000).toLocaleString()} FCFA`;
-  };
-
-  const formatCurrencyFull = (amount: number) => {
-    return `${amount.toLocaleString()} FCFA`;
-  };
 
   const getPercentage = (value: number, total: number) => {
     if (total === 0) return 0;
