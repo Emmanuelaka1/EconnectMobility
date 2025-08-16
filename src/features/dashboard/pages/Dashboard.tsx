@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Car, 
   DollarSign, 
@@ -23,9 +23,8 @@ const Dashboard: React.FC = () => {
   const [selectedMonth, setSelectedMonth] = useState('Août');
   const [weeks, setWeeks] = useState<WeekDto[]>([]);
   const [weeklyData, setWeeklyData] = useState<Record<string, WeeklyStat>>({});
-  const vehicleListRef = useRef<HTMLDivElement>(null);
-  const [canPrevVehicle, setCanPrevVehicle] = useState(false);
-  const [canNextVehicle, setCanNextVehicle] = useState(false);
+  const [vehicleIndex, setVehicleIndex] = useState(0);
+  const vehiclesPerPage = 3;
 
   useEffect(() => {
     const allWeeks = getWeeksOfYear(new Date().getFullYear());
@@ -64,25 +63,18 @@ const Dashboard: React.FC = () => {
   const { data: vehiclesData } = useDashboardVehicles();
   const { data: monthlyHistory } = useDashboardMonthly(selectedMonth);
 
-  useEffect(() => {
-    const el = vehicleListRef.current;
-    if (!el) return;
-    const updateButtons = () => {
-      setCanPrevVehicle(el.scrollLeft > 0);
-      setCanNextVehicle(el.scrollLeft + el.clientWidth < el.scrollWidth);
-    };
-    updateButtons();
-    el.addEventListener('scroll', updateButtons);
-    return () => el.removeEventListener('scroll', updateButtons);
-  }, [vehiclesData]);
+  const visibleVehicles =
+    vehiclesData?.slice(vehicleIndex, vehicleIndex + vehiclesPerPage) ?? [];
+  const canPrevVehicle = vehicleIndex > 0;
+  const canNextVehicle =
+    vehiclesData ? vehicleIndex + vehiclesPerPage < vehiclesData.length : false;
 
-  const scrollVehicles = (direction: 'prev' | 'next') => {
-    const el = vehicleListRef.current;
-    if (!el) return;
-    const scrollAmount = el.clientWidth;
-    const left =
-      direction === 'next' ? el.scrollLeft + scrollAmount : el.scrollLeft - scrollAmount;
-    el.scrollTo({ left, behavior: 'smooth' });
+  const navigateVehicles = (direction: 'prev' | 'next') => {
+    if (direction === 'prev' && canPrevVehicle) {
+      setVehicleIndex((i) => Math.max(0, i - vehiclesPerPage));
+    } else if (direction === 'next' && canNextVehicle) {
+      setVehicleIndex((i) => i + vehiclesPerPage);
+    }
   };
 
   const currentWeekData =
@@ -148,7 +140,7 @@ const Dashboard: React.FC = () => {
         <div className="flex items-center justify-between mb-6">
           <button 
             onClick={() => navigateWeek('prev')}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-2 hover:bg-gray-100 bg-blue-100 rounded-full shadow hover:bg-blue-400 disabled:opacity-50"
           >
             <ChevronLeft className="w-6 h-6 text-gray-600" />
           </button>
@@ -159,7 +151,7 @@ const Dashboard: React.FC = () => {
           
           <button 
             onClick={() => navigateWeek('next')}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-2 hover:bg-gray-100 bg-blue-100 rounded-full shadow hover:bg-blue-400 disabled:opacity-50"
           >
             <ChevronRight className="w-6 h-6 text-gray-600" />
           </button>
@@ -219,92 +211,6 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Total cumulé par véhicule */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-800">Total cumulé</h2>
-        </div>
-
-        <div className="relative">
-          <button
-            onClick={() => scrollVehicles('prev')}
-            disabled={!canPrevVehicle}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 p-2 bg-white rounded-full shadow hover:bg-gray-100 disabled:opacity-50"
-          >
-            <ChevronLeft className="w-6 h-6 text-gray-600" />
-          </button>
-          <div
-            ref={vehicleListRef}
-            className="flex gap-6 overflow-x-auto no-scrollbar scroll-smooth py-1 px-4"
-          >
-            {vehiclesData?.map((vehicle) => (
-              <div
-                key={vehicle.reference}
-                className="min-w-[280px] border border-orange-200 rounded-xl p-4"
-              >
-                <h3 className="text-lg font-bold text-orange-600 mb-4">{vehicle.reference}</h3>
-              
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Achat</span>
-                  <span className="font-bold text-gray-800">{formatCurrencyFull(vehicle.achat)}</span>
-                </div>
-                
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Gain</span>
-                  <span className="font-bold text-emerald-600">{formatCurrencyFull(vehicle.gain)}</span>
-                </div>
-                
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Reste</span>
-                  <span className="font-bold text-red-600">{formatCurrencyFull(vehicle.reste)}</span>
-                </div>
-              </div>
-              
-              {/* Barre de progression */}
-              <div className="mt-4">
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-emerald-500 h-2 rounded-full transition-all duration-500"
-                    style={{ width: `${(vehicle.gain / vehicle.achat) * 100}%` }}
-                  />
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  {((vehicle.gain / vehicle.achat) * 100).toFixed(1)}% remboursé
-                </p>
-              </div>
-              </div>
-            ))}
-          </div>
-          <button
-            onClick={() => scrollVehicles('next')}
-            disabled={!canNextVehicle}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 p-2 bg-white rounded-full shadow hover:bg-gray-100 disabled:opacity-50"
-          >
-            <ChevronRight className="w-6 h-6 text-gray-600" />
-          </button>
-        </div>
-
-        {/* Résumé total */}
-        <div className="mt-6 p-4 bg-gray-50 rounded-xl">
-          <h4 className="font-bold text-gray-800 mb-3">Résumé Total Flotte</h4>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="text-center">
-              <p className="text-sm text-gray-500">Total Achat</p>
-              <p className="text-lg font-bold text-gray-800">{formatCurrencyFull(totalAchat)}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-sm text-gray-500">Total Gain</p>
-              <p className="text-lg font-bold text-emerald-600">{formatCurrencyFull(totalGain)}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-sm text-gray-500">Total Reste</p>
-              <p className="text-lg font-bold text-red-600">{formatCurrencyFull(totalReste)}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Gérer ma flotte */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h2 className="text-xl font-bold text-gray-800 mb-6">Gérer ma flotte</h2>
@@ -354,6 +260,102 @@ const Dashboard: React.FC = () => {
             </div>
             <div>
               <p className="font-medium text-white">Mes réparations</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Total cumulé par véhicule */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-gray-800">Total cumulé</h2>
+          <div className="flex space-x-4">
+            <button
+              onClick={() => navigateVehicles('prev')}
+              disabled={!canPrevVehicle}
+              className="p-2 hover:bg-gray-100 bg-blue-100 rounded-full shadow hover:bg-blue-400 disabled:opacity-50"
+            >
+              <ChevronLeft className="w-6 h-6 text-gray-600" />
+            </button>
+            <button
+              onClick={() => navigateVehicles('next')}
+              disabled={!canNextVehicle}
+              className="p-2 hover:bg-gray-100 bg-blue-100 rounded-full shadow hover:bg-blue-400 disabled:opacity-50"
+            >
+              <ChevronRight className="w-6 h-6 text-gray-600" />
+            </button>
+          </div>
+        </div>
+        <div className='space-x-4'></div>
+        <div className="relative">
+           <button
+              onClick={() => navigateVehicles('prev')}
+              disabled={!canPrevVehicle}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 p-2 bg-blue-100 rounded-full shadow hover:bg-blue-400 disabled:opacity-50"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-600" />
+          </button>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {visibleVehicles.map((vehicle) => (
+              <div key={vehicle.reference} className="border border-orange-200 rounded-xl p-4">
+                <h3 className="text-lg font-bold text-orange-600 mb-4">{vehicle.reference}</h3>
+                
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Achat</span>
+                    <span className="font-bold text-gray-800">{formatCurrencyFull(vehicle.achat)}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Gain</span>
+                    <span className="font-bold text-emerald-600">{formatCurrencyFull(vehicle.gain)}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Reste</span>
+                    <span className="font-bold text-red-600">{formatCurrencyFull(vehicle.reste)}</span>
+                  </div>
+                </div>
+                
+                {/* Barre de progression */}
+                <div className="mt-4">
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-emerald-500 h-2 rounded-full transition-all duration-500"
+                      style={{ width: `${(vehicle.gain / vehicle.achat) * 100}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {((vehicle.gain / vehicle.achat) * 100).toFixed(1)}% remboursé
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+           <button
+              onClick={() => navigateVehicles('next')}
+             disabled={!canNextVehicle}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 p-2 bg-blue-100 rounded-full shadow hover:bg-blue-400 disabled:opacity-50"
+          >
+            <ChevronRight className="w-5 h-5 text-gray-600" />
+          </button>
+        </div>
+
+        {/* Résumé total */}
+        <div className="mt-6 p-4 bg-gray-50 rounded-xl">
+          <h4 className="font-bold text-gray-800 mb-3">Résumé Total Flotte</h4>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="text-center">
+              <p className="text-sm text-gray-500">Total Achat</p>
+              <p className="text-lg font-bold text-gray-800">{formatCurrencyFull(totalAchat)}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-gray-500">Total Gain</p>
+              <p className="text-lg font-bold text-emerald-600">{formatCurrencyFull(totalGain)}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-gray-500">Total Reste</p>
+              <p className="text-lg font-bold text-red-600">{formatCurrencyFull(totalReste)}</p>
             </div>
           </div>
         </div>
