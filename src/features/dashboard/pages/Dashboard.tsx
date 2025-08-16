@@ -12,7 +12,7 @@ import {
   Receipt,
 } from 'lucide-react';
 import PieChart from '@/components/PieChart';
-
+import { formatCurrency, formatCurrencyFull } from '@/utils/format';
 import { useDashboardMonthly, useDashboardVehicles, useDashboardWeekly } from '../queries';
 
 const Dashboard: React.FC = () => {
