@@ -14,36 +14,59 @@ import {
 import PieChart from '@/components/PieChart';
 import { formatCurrency, formatCurrencyFull } from '@/utils/format';
 import { useDashboardMonthly, useDashboardVehicles, useDashboardWeekly } from '../queries';
-import { weekService } from '@/core/api/webService';
-import { WeekDto } from '@/core/api/dataContratDto';
-import { formatWeekRange, getMonthDates } from '@/core/utils/DateUtils';
+import { recetteService, weekService } from '@/core/api/webService';
+import { RecetteDto, WeekDto } from '@/core/api/dataContratDto';
+import { formatWeekRange, getWeekCode, getWeekCurrent, getWeeksOfYear } from '@/core/utils/DateUtils';
 
 const Dashboard: React.FC = () => {
   const [selectedWeek, setSelectedWeek] = useState<string>('');
   const [selectedMonth, setSelectedMonth] = useState('Août');
+  const [weeks, setWeeks] = useState<WeekDto[]>([]);
 
-  
-  const { current, start, end } = getMonthDates();
-  const [weekDatas, setWeekDatas] = useState<WeekDto[]>([]);
-  const weeks = React.useMemo(() => {
-    return weekDatas
-      .filter(w => w.dateStart && w.dateEnd)
-      .map((w) => formatWeekRange(w.dateStart!, w.dateEnd!));
-  }, [weekDatas]);
+  // Récupération la semaine actuelle
+  const { dateStart, dateEnd, formatted } = getWeekCurrent();
+  // Récupération des semaines de l'année
+  const weekAll = getWeeksOfYear(Number(dateStart.split('/')[0]) || new Date().getFullYear());
   useEffect(() => {
-    weekService.getWeeksByDateRange(start, end).then((res) => {
-      setWeekDatas(res.data ?? []);
+    setSelectedWeek(formatted);
+    setWeeks(weekAll);
+  }, [formatted, weekAll]);
+
+  // et les dates de début et fin du mois 
+  //A chaque fois que l'utilisateur change de semaine, on met à jour les recettes
+  const codeWeek = getWeekCode();
+  const [currentRecette, setCurrentRecette] = useState<RecetteDto[]>([]);
+  useEffect(() => {
+    recetteService.getRecettesByWeek(codeWeek).then((response) => {
+      setCurrentRecette(response.data ?? []);
+      if(currentRecette.length > 0) {
+        totalRecette = currentRecette.reduce((sum, r) => sum + (r?.amount ?? 0), 0);
+        setWeeklyData(prev => [...prev, {
+          label: formatted,
+          gain: totalRecette,
+          recettes: totalRecette,
+          charges: totalRecette,
+          reparations: totalRecette,
+        }]);
+      }
     });
-  }, [start, end]);
+
+  }, [codeWeek]);
+ // calculer le montant total des recettes
+ const totalRecette = currentRecette.reduce((sum, r) => sum + (r?.amount ?? 0), 0);
+
+ console.log('Total Recette:', totalRecette);
   const { data: weeklyData } = useDashboardWeekly({ month: selectedMonth });
-  const { data: vehiclesData } = useDashboardVehicles();
+  //// Récupération des données des véhicules
+  //et pour les chaques véhicules on récupère les données
+  // Example usage: replace 'carReference' with the actual car reference you want to fetch
+  // recetteService.getRecettesByCar(carReference).then((response) => {
+  //   setVehiclesData(response.data ?? []);
+  // });
+  //A chaque fois que l'utilisateur change de mois, on met à jour les recettes par véhicule
+  const { data: vehiclesData } = useDashboardVehicles(); 
   const { data: monthlyHistory } = useDashboardMonthly(selectedMonth);
 
-  useEffect(() => {
-    if (!selectedWeek && weeks.length > 0) {
-      setSelectedWeek(weeks[0]);
-    }
-  }, [weeks, selectedWeek]);
   const currentWeekData =
     weeklyData?.find((w) => w.label === selectedWeek) ?? {
       gain: 0,
@@ -88,11 +111,15 @@ const Dashboard: React.FC = () => {
   };
 
   const navigateWeek = (direction: 'prev' | 'next') => {
-    const currentIndex = weeks.indexOf(selectedWeek);
+    const currentIndex = weeks.findIndex(w => w.week === selectedWeek);
     if (direction === 'prev' && currentIndex > 0) {
-      setSelectedWeek(weeks[currentIndex - 1]);
+      //Use getPreviousWeek from DateUtils
+      // const previousWeek = getPreviousWeek(selectedWeek); 
+      setSelectedWeek(weeks[currentIndex - 1].week); 
     } else if (direction === 'next' && currentIndex < weeks.length - 1) {
-      setSelectedWeek(weeks[currentIndex + 1]);
+      //Use getNextWeek from DateUtils
+      // const nextWeek = getNextWeek(selectedWeek);
+      setSelectedWeek(weeks[currentIndex + 1].week);
     }
   };
 

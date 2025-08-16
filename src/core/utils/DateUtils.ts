@@ -1,27 +1,59 @@
+import { WeekDto } from "../api/dataContratDto";
+
+export const jours = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"] as const;
+
+export const mois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"] as const;
+
+const weeks = [] as WeekDto[];
+
+export const toISODate = (dt: Date): string => dt.toLocaleDateString("en-CA");
+
+export function formatDate(date: string | Date): string {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0"); // mois commence à 0
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}/${month}/${day}`;
+}
+
+export function getWeekCurrent() {
+  const d = new Date();
+
+  // Trouver le lundi
+  const jourSemaine = d.getDay(); // 0=dimanche, 1=lundi...
+  const diffLundi = (jourSemaine + 6) % 7; // distance jusqu'au lundi
+  const lundi = new Date(d);
+  lundi.setDate(d.getDate() - diffLundi);
+
+  // Trouver le dimanche
+  const dimanche = new Date(lundi);
+  dimanche.setDate(lundi.getDate() + 6);
+
+  return {
+    dateStart: formatDate(lundi),
+    dateEnd: formatDate(dimanche),
+    formatted: formatWeekRange(formatDate(lundi), formatDate(dimanche)),
+  };
+}
+
 export function getMonthDates() {
     const today = new Date();
 
     // Date du jour (locale)
-    const current = today.toLocaleDateString("en-CA"); // yyyy-MM-dd
+    const currentDay = formatDate(today); // yyyy/MM/dd
 
     // Début du mois (1er jour)
-    const start = new Date(today.getFullYear(), today.getMonth(), 1)
-      .toLocaleDateString("en-CA");
+    const start = formatDate(new Date(today.getFullYear(), today.getMonth(), 1));
 
     // Fin du mois (dernier jour)
-    const end = new Date(today.getFullYear(), today.getMonth() + 1, 0)
-      .toLocaleDateString("en-CA");
+    const end = formatDate(new Date(today.getFullYear(), today.getMonth() + 1, 0));
 
-    return { current, start, end };
+    return { currentDay, start, end };
 }
 
 
 export function formatWeekRange(startDate: string, endDate: string): string {
   // Tableaux pour jours et mois en français
-  const jours = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
-  const mois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
-  ];
 
   const debut = new Date(startDate);
   const fin = new Date(endDate);
@@ -32,6 +64,79 @@ export function formatWeekRange(startDate: string, endDate: string): string {
   return `Du ${debutStr} - ${finStr}`;
 }
 
-// Exemple
-console.log(formatWeekRange("2025-08-11", "2025-08-17"));
-// 👉 "Du Lundi 11 Août - Dimanche 17 Août 2025"
+export function getWeekCode(date = new Date()) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  
+  // Ajuster au jeudi de la semaine courante (ISO 8601)
+  const dayNum = d.getUTCDay() || 7; // dimanche = 0 → 7
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+
+  // Calculer le début de l'année
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+
+  // Numéro de semaine ISO
+  const weekNum = Math.ceil(((Number(d) - Number(yearStart)) / 86400000 + 1) / 7);
+
+  // Format "SYY-NN"
+  const shortYear = String(d.getUTCFullYear()).slice(-2);
+  return `S${shortYear}-${String(weekNum).padStart(2, "0")}`;
+}
+
+export function getWeeksOfYear(year: number) {
+ let id = 0; // or use a unique value if needed
+  if (weeks.length > 0) return weeks;
+
+  // Commencer au 1er janvier
+  const current = new Date(Date.UTC(year, 0, 1));
+
+  // Aller jusqu'au premier lundi
+  const dayNum = current.getUTCDay() || 7; // 0=dimanche -> 7
+  if (dayNum !== 1) {
+    current.setUTCDate(current.getUTCDate() + (8 - dayNum));
+  }
+
+  // Boucler jusqu'à la fin de l'année
+  while (current.getUTCFullYear() === year) {
+    const monday = new Date(current);
+    const sunday = new Date(monday);
+    sunday.setUTCDate(monday.getUTCDate() + 6);
+
+    // Calculer code semaine ISO
+    const d = new Date(monday);
+    const dayOfWeek = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayOfWeek);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const weekNum = Math.ceil(((Number(d) - Number(yearStart)) / 86400000 + 1) / 7);
+
+    const shortYear = String(d.getUTCFullYear()).slice(-2);
+    
+    // Ajouter l'objet
+    weeks.push({
+      id: ++id, // ou utilisez un identifiant unique si nécessaire
+      week : `S${shortYear}-${String(weekNum).padStart(2, "0")}`,
+      dateStart: formatDate(monday), // yyyy-MM-dd
+      dateEnd: formatDate(sunday),
+    });
+
+    // Semaine suivante
+    current.setUTCDate(current.getUTCDate() + 7);
+  }
+
+  return weeks;
+}
+
+export function getNextWeek(week:string): WeekDto | undefined {
+    const currentWeek = weeks.find(w => w.week === week);
+  if (!currentWeek) return undefined;
+
+  const currentIndex = weeks.indexOf(currentWeek);
+  return weeks[currentIndex + 1];
+}
+
+export function getPreviousWeek(week:string): WeekDto | undefined {
+  const currentWeek = weeks.find(w => w.week === week);
+  if (!currentWeek) return undefined;
+
+  const currentIndex = weeks.indexOf(currentWeek);
+  return weeks[currentIndex - 1];
+}

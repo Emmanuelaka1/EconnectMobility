@@ -52,7 +52,12 @@ const apiRequest = async <T>(
     throw new Error(`API Error: ${response.status} ${response.statusText}`);
   }
   
-  return response.json();
+  return response.json().then(data => {
+    if (data.error) {
+      throw new Error(`API Error: ${data.error}`);
+    }
+    return data;
+  });
 };
 
 // Services pour les voitures
