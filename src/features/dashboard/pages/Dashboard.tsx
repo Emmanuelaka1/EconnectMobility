@@ -13,50 +13,44 @@ import {
 } from 'lucide-react';
 import PieChart from '@/components/PieChart';
 import { formatCurrency, formatCurrencyFull } from '@/utils/format';
-import { useDashboardMonthly, useDashboardVehicles, useDashboardWeekly } from '../queries';
-import { recetteService, weekService } from '@/core/api/webService';
+import { useDashboardMonthly, useDashboardVehicles, WeeklyStat } from '../queries';
+import { recetteService } from '@/core/api/webService';
 import { RecetteDto, WeekDto } from '@/core/api/dataContratDto';
-import { formatWeekRange, getWeekCode, getWeekCurrent, getWeeksOfYear } from '@/core/utils/DateUtils';
+import { formatWeekRange, getWeekCode, getWeeksOfYear } from '@/core/utils/DateUtils';
 
 const Dashboard: React.FC = () => {
-  const [selectedWeek, setSelectedWeek] = useState<string>('');
+  const [selectedWeek, setSelectedWeek] = useState<WeekDto | null>(null);
   const [selectedMonth, setSelectedMonth] = useState('Août');
   const [weeks, setWeeks] = useState<WeekDto[]>([]);
+  const [weeklyData, setWeeklyData] = useState<Record<string, WeeklyStat>>({});
 
-  // Récupération la semaine actuelle
-  const { dateStart, dateEnd, formatted } = getWeekCurrent();
-  // Récupération des semaines de l'année
-  const weekAll = getWeeksOfYear(Number(dateStart.split('/')[0]) || new Date().getFullYear());
   useEffect(() => {
-    setSelectedWeek(formatted);
-    setWeeks(weekAll);
-  }, [formatted, weekAll]);
+    const allWeeks = getWeeksOfYear(new Date().getFullYear());
+    const currentWeekCode = getWeekCode();
+    const current = allWeeks.find((w) => w.week === currentWeekCode) || null;
+    setWeeks(allWeeks);
+    setSelectedWeek(current);
+  }, []);
 
-  // et les dates de début et fin du mois 
-  //A chaque fois que l'utilisateur change de semaine, on met à jour les recettes
-  const codeWeek = getWeekCode();
-  const [currentRecette, setCurrentRecette] = useState<RecetteDto[]>([]);
   useEffect(() => {
-    recetteService.getRecettesByWeek(codeWeek).then((response) => {
-      setCurrentRecette(response.data ?? []);
-      if(currentRecette.length > 0) {
-        totalRecette = currentRecette.reduce((sum, r) => sum + (r?.amount ?? 0), 0);
-        setWeeklyData(prev => [...prev, {
-          label: formatted,
-          gain: totalRecette,
-          recettes: totalRecette,
-          charges: totalRecette,
-          reparations: totalRecette,
-        }]);
-      }
+    if (!selectedWeek || weeklyData[selectedWeek.week]) return;
+
+    recetteService.getRecettesByWeek(selectedWeek.week).then((response) => {
+      const recettes = (response.data ?? []) as RecetteDto[];
+      const total = recettes.reduce((sum, r) => sum + (r?.amount ?? 0), 0);
+
+      setWeeklyData((prev) => ({
+        ...prev,
+        [selectedWeek.week]: {
+          label: formatWeekRange(selectedWeek.dateStart!, selectedWeek.dateEnd!),
+          gain: total,
+          recettes: total,
+          charges: 0,
+          reparations: 0,
+        },
+      }));
     });
-
-  }, [codeWeek]);
- // calculer le montant total des recettes
- const totalRecette = currentRecette.reduce((sum, r) => sum + (r?.amount ?? 0), 0);
-
- console.log('Total Recette:', totalRecette);
-  const { data: weeklyData } = useDashboardWeekly({ month: selectedMonth });
+  }, [selectedWeek, weeklyData]);
   //// Récupération des données des véhicules
   //et pour les chaques véhicules on récupère les données
   // Example usage: replace 'carReference' with the actual car reference you want to fetch
@@ -64,22 +58,23 @@ const Dashboard: React.FC = () => {
   //   setVehiclesData(response.data ?? []);
   // });
   //A chaque fois que l'utilisateur change de mois, on met à jour les recettes par véhicule
-  const { data: vehiclesData } = useDashboardVehicles(); 
+  const { data: vehiclesData } = useDashboardVehicles();
   const { data: monthlyHistory } = useDashboardMonthly(selectedMonth);
 
   const currentWeekData =
-    weeklyData?.find((w) => w.label === selectedWeek) ?? {
-      gain: 0,
-      recettes: 0,
-      charges: 0,
-      reparations: 0,
-    };
+    selectedWeek && weeklyData[selectedWeek.week]
+      ? weeklyData[selectedWeek.week]
+      : { gain: 0, recettes: 0, charges: 0, reparations: 0 };
 
   const currentMonthData =
     monthlyHistory ?? {
       tousVehicules: { gain: 0, recettes: 0, charges: 0, reparations: 0 },
       parVehicule: {},
     };
+
+  const weekLabel = selectedWeek
+    ? formatWeekRange(selectedWeek.dateStart!, selectedWeek.dateEnd!)
+    : '';
 
   const months = ['Août', 'Juillet', 'Juin', 'Mai', 'Avril', 'Mars', 'Février'];
 
@@ -111,15 +106,12 @@ const Dashboard: React.FC = () => {
   };
 
   const navigateWeek = (direction: 'prev' | 'next') => {
-    const currentIndex = weeks.findIndex(w => w.week === selectedWeek);
+    if (!selectedWeek) return;
+    const currentIndex = weeks.findIndex((w) => w.week === selectedWeek.week);
     if (direction === 'prev' && currentIndex > 0) {
-      //Use getPreviousWeek from DateUtils
-      // const previousWeek = getPreviousWeek(selectedWeek); 
-      setSelectedWeek(weeks[currentIndex - 1].week); 
+      setSelectedWeek(weeks[currentIndex - 1]);
     } else if (direction === 'next' && currentIndex < weeks.length - 1) {
-      //Use getNextWeek from DateUtils
-      // const nextWeek = getNextWeek(selectedWeek);
-      setSelectedWeek(weeks[currentIndex + 1].week);
+      setSelectedWeek(weeks[currentIndex + 1]);
     }
   };
 
@@ -138,7 +130,7 @@ const Dashboard: React.FC = () => {
           </button>
           
           <div className="bg-gray-200 rounded-full px-6 py-2">
-            <span className="text-sm font-medium text-gray-700">{selectedWeek}</span>
+            <span className="text-sm font-medium text-gray-700">{weekLabel}</span>
           </div>
           
           <button 
