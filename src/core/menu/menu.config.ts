@@ -3,7 +3,7 @@ import type { MenuItem } from "./types";
 
 import Dashboard from "@/features/dashboard/pages/Dashboard";
 import Voitures from "@/features/dashboard/pages/Voitures";
-import Recettes from "@/features/dashboard/pages/Recettes";
+import Recettes from "@/features/recettes/pages/Recettes";
 import Operations from "@/features/dashboard/pages/Operations";
 import Weeks from "@/features/dashboard/pages/Weeks";
 import Documents from "@/features/dashboard/pages/Documents";
