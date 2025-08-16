@@ -14,16 +14,30 @@ import {
 import PieChart from '@/components/PieChart';
 import { formatCurrency, formatCurrencyFull } from '@/utils/format';
 import { useDashboardMonthly, useDashboardVehicles, useDashboardWeekly } from '../queries';
+import { weekService } from '@/core/api/webService';
+import { WeekDto } from '@/core/api/dataContratDto';
+import { formatWeekRange, getMonthDates } from '@/core/utils/DateUtils';
 
 const Dashboard: React.FC = () => {
   const [selectedWeek, setSelectedWeek] = useState<string>('');
   const [selectedMonth, setSelectedMonth] = useState('Août');
 
+  
+  const { current, start, end } = getMonthDates();
+  const [weekDatas, setWeekDatas] = useState<WeekDto[]>([]);
+  const weeks = React.useMemo(() => {
+    return weekDatas
+      .filter(w => w.dateStart && w.dateEnd)
+      .map((w) => formatWeekRange(w.dateStart!, w.dateEnd!));
+  }, [weekDatas]);
+  useEffect(() => {
+    weekService.getWeeksByDateRange(start, end).then((res) => {
+      setWeekDatas(res.data ?? []);
+    });
+  }, [start, end]);
   const { data: weeklyData } = useDashboardWeekly({ month: selectedMonth });
   const { data: vehiclesData } = useDashboardVehicles();
   const { data: monthlyHistory } = useDashboardMonthly(selectedMonth);
-
-  const weeks = weeklyData?.map((w) => w.label) ?? [];
 
   useEffect(() => {
     if (!selectedWeek && weeks.length > 0) {
@@ -81,6 +95,8 @@ const Dashboard: React.FC = () => {
       setSelectedWeek(weeks[currentIndex + 1]);
     }
   };
+
+  
 
   return (
     <div className="space-y-6 bg-gray-50 min-h-screen p-6">
