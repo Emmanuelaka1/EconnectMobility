@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Car, 
   DollarSign, 
@@ -11,126 +11,60 @@ import {
   Receipt,
 } from 'lucide-react';
 import PieChart from '@/components/PieChart';
+import { useDashboardMonthly, useDashboardVehicles, useDashboardWeekly } from '../queries';
 
 const Dashboard: React.FC = () => {
-  const [selectedWeek, setSelectedWeek] = useState('Du lun. 11 août - dim. 17 août 2025');
+  const [selectedWeek, setSelectedWeek] = useState<string>('');
   const [selectedMonth, setSelectedMonth] = useState('Août');
 
-  // Données par défaut - Semaines
-  const weeklyData = {
-    'Du lun. 11 août - dim. 17 août 2025': {
-      gain: 400000,
-      recettes: 400000,
+  const { data: weeklyData } = useDashboardWeekly({ month: selectedMonth });
+  const { data: vehiclesData } = useDashboardVehicles();
+  const { data: monthlyHistory } = useDashboardMonthly(selectedMonth);
+
+  const weeks = weeklyData?.map((w) => w.label) ?? [];
+
+  useEffect(() => {
+    if (!selectedWeek && weeks.length > 0) {
+      setSelectedWeek(weeks[0]);
+    }
+  }, [weeks, selectedWeek]);
+
+  const currentWeekData =
+    weeklyData?.find((w) => w.label === selectedWeek) ?? {
+      gain: 0,
+      recettes: 0,
       charges: 0,
-      reparations: 0
-    },
-    'Du lun. 4 août - dim. 10 août 2025': {
-      gain: 350000,
-      recettes: 380000,
-      charges: 30000,
-      reparations: 0
-    },
-    'Du lun. 28 juil - dim. 3 août 2025': {
-      gain: 320000,
-      recettes: 350000,
-      charges: 25000,
-      reparations: 5000
-    }
-  };
+      reparations: 0,
+    };
 
-  // Données par défaut - Véhicules (Total cumulé)
-  const vehiclesData = [
-    {
-      reference: 'EM20517-01',
-      achat: 8000000,
-      gain: 2428500,
-      reste: 5571500
-    },
-    {
-      reference: 'EM28431-01',
-      achat: 8000000,
-      gain: 1035000,
-      reste: 6965000
-    },
-    {
-      reference: 'EM13548-01',
-      achat: 6500000,
-      gain: 1850000,
-      reste: 4650000
-    }
-  ];
-
-  // Données par défaut - Historique mensuel
-  const monthlyHistory = {
-    'Août': {
-      tousVehicules: {
-        gain: 1475000,
-        recettes: 1475000,
-        charges: 0,
-        reparations: 0
-      },
-      parVehicule: {
-        'EM20517-01': { gain: 242500, recettes: 242500, charges: 0, reparations: 0 },
-        'EM28431-01': { gain: 185000, recettes: 185000, charges: 0, reparations: 0 },
-        'EM13548-01': { gain: 463800, recettes: 537500, charges: 26000, reparations: 47700 }
-      }
-    },
-    'Juillet': {
-      tousVehicules: {
-        gain: 3035500,
-        recettes: 3530000,
-        charges: 404500,
-        reparations: 90000
-      },
-      parVehicule: {
-        'EM20517-01': { gain: 580000, recettes: 620000, charges: 35000, reparations: 5000 },
-        'EM28431-01': { gain: 420000, recettes: 450000, charges: 25000, reparations: 5000 },
-        'EM13548-01': { gain: 2035500, recettes: 2460000, charges: 344500, reparations: 80000 }
-      }
-    },
-    'Juin': {
-      tousVehicules: {
-        gain: 2850000,
-        recettes: 3200000,
-        charges: 280000,
-        reparations: 70000
-      },
-      parVehicule: {
-        'EM20517-01': { gain: 520000, recettes: 550000, charges: 25000, reparations: 5000 },
-        'EM28431-01': { gain: 380000, recettes: 400000, charges: 15000, reparations: 5000 },
-        'EM13548-01': { gain: 1950000, recettes: 2250000, charges: 240000, reparations: 60000 }
-      }
-    }
-  };
+  const currentMonthData =
+    monthlyHistory ?? {
+      tousVehicules: { gain: 0, recettes: 0, charges: 0, reparations: 0 },
+      parVehicule: {},
+    };
 
   const months = ['Août', 'Juillet', 'Juin', 'Mai', 'Avril', 'Mars', 'Février'];
-  const weeks = Object.keys(weeklyData);
 
-  const currentWeekData = weeklyData[selectedWeek as keyof typeof weeklyData];
-  const currentMonthData = monthlyHistory[selectedMonth as keyof typeof monthlyHistory];
+  const totalAchat = vehiclesData?.reduce((sum, v) => sum + v.achat, 0) ?? 0;
+  const totalGain = vehiclesData?.reduce((sum, v) => sum + v.gain, 0) ?? 0;
+  const totalReste = vehiclesData?.reduce((sum, v) => sum + v.reste, 0) ?? 0;
 
-  // Calcul des totaux
-  const totalAchat = vehiclesData.reduce((sum, v) => sum + v.achat, 0);
-  const totalGain = vehiclesData.reduce((sum, v) => sum + v.gain, 0);
-  const totalReste = vehiclesData.reduce((sum, v) => sum + v.reste, 0);
-
-  // Données pour le graphique en secteurs
   const pieChartData = [
-    { 
-      label: 'Recettes', 
-      value: currentMonthData.tousVehicules.recettes, 
-      color: '#10B981' 
+    {
+      label: 'Recettes',
+      value: currentMonthData.tousVehicules.recettes,
+      color: '#10B981',
     },
-    { 
-      label: 'Charges', 
-      value: currentMonthData.tousVehicules.charges, 
-      color: '#3B82F6' 
+    {
+      label: 'Charges',
+      value: currentMonthData.tousVehicules.charges,
+      color: '#3B82F6',
     },
-    { 
-      label: 'Réparations', 
-      value: currentMonthData.tousVehicules.reparations, 
-      color: '#F59E0B' 
-    }
+    {
+      label: 'Réparations',
+      value: currentMonthData.tousVehicules.reparations,
+      color: '#F59E0B',
+    },
   ];
 
   const formatCurrency = (amount: number) => {
@@ -254,7 +188,7 @@ const Dashboard: React.FC = () => {
             </div>
             <div>
               <p className="font-medium text-gray-800">Mes</p>
-              <p className="font-medium text-gray-800">véhicules ({vehiclesData.length})</p>
+              <p className="font-medium text-gray-800">véhicules ({vehiclesData?.length ?? 0})</p>
             </div>
           </div>
 
@@ -292,7 +226,7 @@ const Dashboard: React.FC = () => {
         <h2 className="text-xl font-bold text-gray-800 mb-6">Total cumulé</h2>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {vehiclesData.map((vehicle, index) => (
+          {(vehiclesData ?? []).map((vehicle, index) => (
             <div key={vehicle.reference} className="border border-orange-200 rounded-xl p-4">
               <h3 className="text-lg font-bold text-orange-600 mb-4">{vehicle.reference}</h3>
               
