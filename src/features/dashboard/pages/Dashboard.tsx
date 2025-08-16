@@ -152,7 +152,7 @@ const Dashboard: React.FC = () => {
             </div>
             <div className="mt-16">
               <h3 className="text-lg font-medium mb-2">Gain</h3>
-              <p className="text-3xl font-bold mb-4">{formatCurrency(currentWeekData.gain)}</p>
+              <p className="text-3xl font-bold mb-4">{formatCurrencyFull(currentWeekData.gain)}</p>
               <button className="bg-yellow-400 text-black px-4 py-2 rounded-lg font-medium hover:bg-yellow-300 transition-colors flex items-center space-x-2">
                 <span>Détails</span>
                 <ChevronRight className="w-4 h-4" />
@@ -168,7 +168,7 @@ const Dashboard: React.FC = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-500">Recettes</p>
-                <p className="text-xl font-bold text-gray-800">{formatCurrency(currentWeekData.recettes)}</p>
+                <p className="text-xl font-bold text-gray-800">{formatCurrencyFull(currentWeekData.recettes)}</p>
               </div>
             </div>
 
@@ -178,7 +178,7 @@ const Dashboard: React.FC = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-500">Charges</p>
-                <p className="text-xl font-bold text-gray-800">{formatCurrency(currentWeekData.charges)}</p>
+                <p className="text-xl font-bold text-gray-800">{formatCurrencyFull(currentWeekData.charges)}</p>
               </div>
             </div>
 
@@ -188,7 +188,7 @@ const Dashboard: React.FC = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-500">Réparations</p>
-                <p className="text-xl font-bold text-gray-800">{formatCurrency(currentWeekData.reparations)}</p>
+                <p className="text-xl font-bold text-gray-800">{formatCurrencyFull(currentWeekData.reparations)}</p>
               </div>
             </div>
           </div>
@@ -376,19 +376,19 @@ const Dashboard: React.FC = () => {
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <span className="text-gray-500">Gain: </span>
-                    <span className="font-medium text-emerald-600">{formatCurrency(data.gain)}</span>
+                    <span className="font-medium text-emerald-600">{formatCurrencyFull(data.gain)}</span>
                   </div>
                   <div>
                     <span className="text-gray-500">Recettes: </span>
-                    <span className="font-medium">{formatCurrency(data.recettes)}</span>
+                    <span className="font-medium">{formatCurrencyFull(data.recettes)}</span>
                   </div>
                   <div>
                     <span className="text-gray-500">Charges: </span>
-                    <span className="font-medium text-blue-600">{formatCurrency(data.charges)}</span>
+                    <span className="font-medium text-blue-600">{formatCurrencyFull(data.charges)}</span>
                   </div>
                   <div>
                     <span className="text-gray-500">Réparations: </span>
-                    <span className="font-medium text-orange-600">{formatCurrency(data.reparations)}</span>
+                    <span className="font-medium text-orange-600">{formatCurrencyFull(data.reparations)}</span>
                   </div>
                 </div>
               </div>
