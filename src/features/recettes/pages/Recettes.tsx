@@ -4,6 +4,8 @@ import { CarDto, RecetteDto } from '@/Api/ApiDto';
 import { recetteService } from '@/Api/Service';
 import { getMonthDates, mois } from '@/core/utils/DateUtils';
 import RecettesCarTable from './RecettesCarTable';
+import { formatCurrencyFull } from '@/utils/format';
+import { carService } from '@/core/api/webService';
 
 const Recettes: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,32 +19,7 @@ const Recettes: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // Données par défaut - Voitures
-  const [voitures] = useState<CarDto[]>([
-    {
-      referenceCar: 'CAR-001',
-      immatriculation: 'ABC-123-DE',
-      marque: 'BMW',
-      modele: 'X5',
-      couleur: 'Noir',
-      carburant: 'Diesel'
-    },
-    {
-      referenceCar: 'CAR-002',
-      immatriculation: 'DEF-456-GH',
-      marque: 'Mercedes',
-      modele: 'E-Class',
-      couleur: 'Blanc',
-      carburant: 'Essence'
-    },
-    {
-      referenceCar: 'CAR-003',
-      immatriculation: 'GHI-789-JK',
-      marque: 'Audi',
-      modele: 'A6',
-      couleur: 'Gris',
-      carburant: 'Hybride'
-    }
-  ]);
+  const [voitures, setVoitures] = useState<CarDto[]>([]);
 
   const [recettes, setRecettes] = useState<RecetteDto[]>([]);
 
@@ -53,6 +30,8 @@ const Recettes: React.FC = () => {
       .getRecettesByDateBetween(start, end)
       .then(res => setRecettes(res.data ?? []))
       .finally(() => setLoading(false));
+
+      carService.getAllCars().then(res => setVoitures(res.data ?? []));
   }, [currentDate]);
 
   const handlePrevMonth = () => {
@@ -159,12 +138,12 @@ const Recettes: React.FC = () => {
   const filteredRecettes = recettes.filter(recette => {
     const matchesSearch = 
       recette.commentRecette?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      recette.car?.marque?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      recette.car?.modele?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      recette.car?.immatriculation?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+      recette.amount?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+      recette.dateRecette?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+      recette.referencecar?.toLowerCase().includes(searchTerm.toLowerCase());
+
     const matchesWeek = selectedWeek === '' || recette.week === selectedWeek;
-    const matchesCar = selectedCar === '' || recette.car?.referenceCar === selectedCar;
+    const matchesCar = selectedCar === '' || recette.referencecar === selectedCar;
     
     return matchesSearch && matchesWeek && matchesCar;
   });
@@ -202,7 +181,7 @@ const Recettes: React.FC = () => {
     return daysDiff >= 1;
   }).length;
   const recettesEnAttente = recettes.length - recettesValidees;
-  const moyenneParCourse = recettes.length > 0 ? totalRecettes / recettes.length : 0;
+  const moyenneParRecette = recettes.length > 0 ? totalRecettes / recettes.length : 0;
 
   const weeks = [...new Set(recettes.map(r => r.week).filter(Boolean))];
 
@@ -270,7 +249,7 @@ const Recettes: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-500">Total Recettes</p>
-              <p className="text-2xl font-bold text-gray-800">€{totalRecettes.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-gray-800">{formatCurrencyFull(totalRecettes)}</p>
             </div>
             <div className="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center">
               <DollarSign className="w-6 h-6 text-emerald-600" />
@@ -305,8 +284,8 @@ const Recettes: React.FC = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500">Moyenne/Course</p>
-              <p className="text-2xl font-bold text-gray-800">€{moyenneParCourse.toFixed(2)}</p>
+              <p className="text-sm font-medium text-gray-500">Moyenne/Recette</p>
+              <p className="text-2xl font-bold text-gray-800">{formatCurrencyFull(moyenneParRecette)}</p>
             </div>
             <div className="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center">
               <Car className="w-6 h-6 text-purple-600" />
@@ -346,11 +325,14 @@ const Recettes: React.FC = () => {
             className="px-4 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Toutes les voitures</option>
-            {voitures.map(car => (
-              <option key={car.referenceCar} value={car.referenceCar}>
-                {car.marque} {car.modele} - {car.immatriculation}
-              </option>
-            ))}
+            {/* ordonner par marque */}
+            {voitures
+              .sort((a, b) => (a.referenceCar ?? '').localeCompare(b.referenceCar ?? ''))
+              .map(car => (
+                <option key={car.referenceCar} value={car.referenceCar}>
+                  {car.referenceCar}
+                </option>
+              ))}
           </select>
           
           <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 flex items-center space-x-2">
@@ -425,7 +407,6 @@ const Recettes: React.FC = () => {
                   </td>
                   <td className="px-4 py-2 whitespace-nowrap">
                     <div className="flex items-center space-x-1">
-                      <DollarSign className="w-4 h-4 text-emerald-600" />
                       <span className="text-sm font-semibold text-gray-800">€{recette.amount?.toFixed(2)}</span>
                     </div>
                   </td>
@@ -433,7 +414,7 @@ const Recettes: React.FC = () => {
                     <div className="flex items-center space-x-2">
                       <Car className="w-4 h-4 text-gray-400" />
                       <span className="text-sm text-gray-600">
-                        {recette.car?.marque} {recette.car?.modele} - {recette.car?.immatriculation}
+                        {recette.referencecar}
                       </span>
                     </div>
                   </td>

@@ -133,7 +133,7 @@ const RecettesCarTable: React.FC<RecettesCarTableProps> = ({ initialCar = '', in
           className="border p-2 rounded text-gray-900"
         >
           <option value="">Sélectionner une voiture</option>
-          {cars.map(c => (
+          {cars.sort((a, b) => (a.referenceCar ?? '').localeCompare(b.referenceCar ?? '')).map(c => (
             <option key={c.referenceCar} value={c.referenceCar}>
               {c.referenceCar}
             </option>
