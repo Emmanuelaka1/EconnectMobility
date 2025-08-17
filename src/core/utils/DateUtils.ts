@@ -4,7 +4,7 @@ export const jours = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendre
 
 export const mois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"] as const;
 
-const weeks = [] as WeekDto[];
+let weeks = [] as WeekDto[];
 
 export const toISODate = (dt: Date): string => dt.toLocaleDateString("en-CA");
 
@@ -117,6 +117,13 @@ export function getWeeksOfYear(year: number) {
   }
 
   return weeks;
+}
+
+export function formatWeek(week: string): string {
+    if (weeks.length === 0) weeks = getWeeksOfYear(week.split('-')[1] ? parseInt(week.split('-')[1], 10) : new Date().getFullYear());
+  
+    const currentWeek = weeks.find(w => w.week === week);
+  return formatWeekRange(currentWeek?.dateStart || '', currentWeek?.dateEnd || '');
 }
 
 export function getNextWeek(week:string): WeekDto | undefined {

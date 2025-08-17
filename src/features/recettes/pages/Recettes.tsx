@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { DollarSign, Plus, Search, Filter, Calendar, Car, Edit, Trash2, Eye, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { CarDto, RecetteDto } from '@/Api/ApiDto';
 import { recetteService } from '@/Api/Service';
-import { getMonthDates, mois } from '@/core/utils/DateUtils';
+import { formatWeek, getMonthDates, mois } from '@/core/utils/DateUtils';
 import RecettesCarTable from './RecettesCarTable';
 import { formatCurrencyFull } from '@/utils/format';
 import { carService } from '@/core/api/webService';
@@ -22,6 +22,19 @@ const Recettes: React.FC = () => {
   const [voitures, setVoitures] = useState<CarDto[]>([]);
 
   const [recettes, setRecettes] = useState<RecetteDto[]>([]);
+
+  const weeks = useMemo(() => {
+    const uniques = [...new Set(recettes.map(r => r.week).filter(Boolean))] as string[];
+    return uniques.sort((a, b) => {
+      const [wa, ya] = a.slice(1).split('-');
+      const [wb, yb] = b.slice(1).split('-');
+      if (ya === yb) return parseInt(wa) - parseInt(wb);
+      return parseInt(ya) - parseInt(yb);
+    });
+  }, [recettes]);
+
+  //ReferenceError: Cannot access 'currentWeek' before initialization
+  const currentWeek = weeks[currentWeekIndex] ?? 'S33-2025';
 
   useEffect(() => {
     const { start, end } = getMonthDates(currentDate);
@@ -52,7 +65,7 @@ const Recettes: React.FC = () => {
   };
 
   const handleEdit = (recette: RecetteDto) => {
-    setModalCar(recette.car?.referenceCar || '');
+    setModalCar(recette.referencecar || '');
     setModalWeek(recette.week || '');
     setShowModal(true);
   };
@@ -142,7 +155,7 @@ const Recettes: React.FC = () => {
       recette.dateRecette?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
       recette.referencecar?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesWeek = recette.week === currentWeek;
+    const matchesWeek = recette.week === 'S33-2025' || recette.week === currentWeek;
     const matchesCar = selectedCar === '' || recette.referencecar === selectedCar;
 
     return matchesSearch && matchesWeek && matchesCar;
@@ -183,17 +196,6 @@ const Recettes: React.FC = () => {
   const recettesEnAttente = recettes.length - recettesValidees;
   const moyenneParRecette = recettes.length > 0 ? totalRecettes / recettes.length : 0;
 
-  const weeks = useMemo(() => {
-    const uniques = [...new Set(recettes.map(r => r.week).filter(Boolean))] as string[];
-    return uniques.sort((a, b) => {
-      const [wa, ya] = a.slice(1).split('-');
-      const [wb, yb] = b.slice(1).split('-');
-      if (ya === yb) return parseInt(wa) - parseInt(wb);
-      return parseInt(ya) - parseInt(yb);
-    });
-  }, [recettes]);
-  const currentWeek = weeks[currentWeekIndex] || '';
-
   useEffect(() => {
     if (weeks.length > 0) {
       setCurrentWeekIndex(weeks.length - 1);
@@ -205,13 +207,33 @@ const Recettes: React.FC = () => {
   }, [currentWeek]);
 
   return (
-    <div className="p-4 space-y-6">
+    <div className="p-4 space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Gestion des Recettes</h1>
           <p className="text-gray-600 mt-1">Suivi des gains et revenus VTC par semaine</p>
         </div>
+        
+        {/* Month Navigation */}
+        <div className="flex items-center justify-center space-x-2">
+          <button
+            onClick={handlePrevMonth}
+            className="p-2 rounded-lg text-gray-900 hover:bg-gray-200"
+            aria-label="Mois précédent"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <span className="font-medium text-red-600">{monthLabel}</span>
+          <button
+            onClick={handleNextMonth}
+            className="p-2 rounded-lg text-gray-900 hover:bg-gray-200"
+            aria-label="Mois suivant"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+        </div>
+
         <div className="flex items-center space-x-3">
           {selectedRecettes.length > 0 && (
             <>
@@ -243,50 +265,7 @@ const Recettes: React.FC = () => {
         </div>
       </div>
 
-      {/* Month Navigation */}
-      <div className="flex items-center justify-center space-x-2">
-        <button
-          onClick={handlePrevMonth}
-          className="p-2 rounded-lg hover:bg-gray-200"
-          aria-label="Mois précédent"
-        >
-          <ChevronLeft className="w-4 h-4" />
-        </button>
-        <span className="font-medium">{monthLabel}</span>
-        <button
-          onClick={handleNextMonth}
-          className="p-2 rounded-lg hover:bg-gray-200"
-          aria-label="Mois suivant"
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* Week Navigation */}
-      {weeks.length > 0 && (
-        <div className="flex items-center justify-center space-x-4 mt-4">
-          <button
-            onClick={() => setCurrentWeekIndex(i => Math.max(0, i - 1))}
-            disabled={currentWeekIndex === 0}
-            className="px-3 py-1 rounded-lg hover:bg-gray-200 disabled:opacity-50 flex items-center space-x-1"
-            aria-label="Semaine précédente"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            <span>Précédent</span>
-          </button>
-          <span className="font-medium">{currentWeek}</span>
-          <button
-            onClick={() => setCurrentWeekIndex(i => Math.min(weeks.length - 1, i + 1))}
-            disabled={currentWeekIndex === weeks.length - 1}
-            className="px-3 py-1 rounded-lg hover:bg-gray-200 disabled:opacity-50 flex items-center space-x-1"
-            aria-label="Semaine suivante"
-          >
-            <span>Suivant</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-
+      
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -304,8 +283,8 @@ const Recettes: React.FC = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500">Recettes Validées</p>
-              <p className="text-2xl font-bold text-gray-800">{recettesValidees}</p>
+              <p className="text-sm font-medium text-gray-500">Nombre de Recettes</p>
+              <p className="text-2xl font-bold text-gray-800">{filteredRecettes.length}</p>
             </div>
             <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
               <Eye className="w-6 h-6 text-blue-600" />
@@ -376,8 +355,32 @@ const Recettes: React.FC = () => {
 
       {/* Recettes Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="p-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-800">Liste des Recettes ({filteredRecettes.length})</h3>
+        <div className="p-3 border-b border-gray-200">
+          {/* Week Navigation */}
+        {weeks.length > 0 && (
+          <div className="flex items-center justify-between">
+            <button 
+              onClick={() => setCurrentWeekIndex(i => Math.max(0, i - 1))}
+              disabled={currentWeekIndex === 0}
+              className="p-2 hover:bg-gray-100 bg-blue-100 rounded-full shadow hover:bg-blue-400 disabled:opacity-50"
+            >
+              <ChevronLeft className="w-6 h-6 text-gray-600" />
+            </button>
+            
+            <div className="bg-gray-200 rounded-full px-6 py-2">
+              <span className="text-md font-medium text-gray-800"> <strong>Liste des Recettes  </strong>{formatWeek(currentWeek)}</span>
+            </div>
+            
+            <button 
+              onClick={() => setCurrentWeekIndex(i => Math.min(weeks.length - 1, i + 1))}
+              disabled={currentWeekIndex === weeks.length - 1}
+              className="p-2 hover:bg-gray-100 bg-blue-100 rounded-full shadow hover:bg-blue-400 disabled:opacity-50"
+            >
+              <ChevronRight className="w-6 h-6 text-gray-600" />
+            </button>
+          </div>
+         
+        )}
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
