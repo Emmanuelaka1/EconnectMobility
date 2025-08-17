@@ -31,7 +31,7 @@ const RecettesCarTable: React.FC<RecettesCarTableProps> = ({ initialCar = '', in
   const fetchRecettes = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await recetteService.getRecettesByCar(selectedCar);
+      const res = await recetteService.getRecettesByCarAndWeek(selectedCar, selectedWeek);
       const recettes = (res.data ?? []).filter(r => r.week === selectedWeek);
       const dates = getWeekDates(selectedWeek);
       console.log('Recettes for week:', selectedWeek, 'Dates:', dates, 'Found:', recettes.length);
@@ -102,13 +102,9 @@ const RecettesCarTable: React.FC<RecettesCarTableProps> = ({ initialCar = '', in
     const toCreate = rows.filter(r => !r.idrecette && r.amount);
     setLoading(true);
     try {
-      if (toUpdate.length) {
-        await recetteService.updateRecettes(toUpdate);
-      }
-      if (toCreate.length) {
-        console.log('Creating new recettes:', toCreate);
-        await recetteService.saveRecettes(toCreate);
-      }
+      if (toUpdate.length) await recetteService.updateRecettes(toUpdate);
+      if (toCreate.length) await recetteService.saveRecettes(toCreate);
+      
       await fetchRecettes();
     } finally {
       setLoading(false);

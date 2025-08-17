@@ -79,10 +79,9 @@ export const recetteService = {
   getRecettesByDate: (date: string) => apiRequest<RecetteDto[]>(`/recettes/getRecettesByDate/${date}`),
   getRecettesByWeek: (week: string) => apiRequest<RecetteDto[]>(`/recettes/getRecettesByWeek/${week}`),
   getRecettesByCar: (car: string) => apiRequest<RecetteDto[]>(`/recettes/getRecettesByCar/${car}`),
-  getRecettesByDateAndCar: (date: string, referenceCar: string) => 
-    apiRequest<RecetteDto[]>(`/recettes/getRecettesByDateAndCar/${date}/${referenceCar}`),
-  getRecettesByIds: (ids: number[]) => 
-    apiRequest<RecetteDto[]>(`/recettes/getRecettesByIds/${ids.join(',')}`),
+  getRecettesByCarAndWeek: (car: string, week: string) => apiRequest<RecetteDto[]>(`/recettes/getRecettesByCarAndWeek/${car}/${week}`),
+  getRecettesByDateAndCar: (date: string, referenceCar: string) => apiRequest<RecetteDto[]>(`/recettes/getRecettesByDateAndCar/${date}/${referenceCar}`),
+  getRecettesByIds: (ids: number[]) => apiRequest<RecetteDto[]>(`/recettes/getRecettesByIds/${ids.join(',')}`),
   saveRecette: (recette: RecetteDto) => apiRequest<RecetteDto>('/recettes/saveRecette', {
     method: 'POST',
     body: JSON.stringify(recette),

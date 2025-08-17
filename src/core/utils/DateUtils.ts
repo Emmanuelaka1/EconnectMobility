@@ -1,4 +1,3 @@
-import { D } from "node_modules/@tanstack/react-query-devtools/build/modern/ReactQueryDevtools-DO8QvfQP";
 import { WeekDto } from "../api/dataContratDto";
 
 export const jours = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"] as const;
@@ -48,23 +47,18 @@ export function getWeekCurrent() {
 
 export function getMonthDates() {
     const today = new Date();
-
     // Date du jour (locale)
     const currentDay = formatDate(today); // yyyy/MM/dd
-
     // Début du mois (1er jour)
     const start = formatDate(new Date(today.getFullYear(), today.getMonth(), 1));
-
     // Fin du mois (dernier jour)
     const end = formatDate(new Date(today.getFullYear(), today.getMonth() + 1, 0));
-
     return { currentDay, start, end };
 }
 
 
 export function formatWeekRange(startDate: string, endDate: string): string {
   // Tableaux pour jours et mois en français
-
   const debut = new Date(startDate);
   const fin = new Date(endDate);
 
@@ -76,20 +70,17 @@ export function formatWeekRange(startDate: string, endDate: string): string {
 
 export function getWeekCode(date = new Date()) {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  
   // Ajuster au jeudi de la semaine courante (ISO 8601)
   const dayNum = d.getUTCDay() || 7; // dimanche = 0 → 7
   d.setUTCDate(d.getUTCDate() + 4 - dayNum);
 
   // Calculer le début de l'année
   const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-
   // Numéro de semaine ISO
   const weekNum = Math.ceil(((Number(d) - Number(yearStart)) / 86400000 + 1) / 7);
 
-  // Format "SYY-NN"
-  const shortYear = String(d.getUTCFullYear()).slice(-2);
-  return `S${shortYear}-${String(weekNum).padStart(2, "0")}`;
+  // Format "SNN-YYYY"
+  return `S${String(weekNum).padStart(2, "0")}-${d.getUTCFullYear()}`;
 }
 
 export function getWeeksOfYear(year: number) {
@@ -98,12 +89,9 @@ export function getWeeksOfYear(year: number) {
 
   // Commencer au 1er janvier
   const current = new Date(Date.UTC(year, 0, 1));
-
   // Aller jusqu'au premier lundi
   const dayNum = current.getUTCDay() || 7; // 0=dimanche -> 7
-  if (dayNum !== 1) {
-    current.setUTCDate(current.getUTCDate() + (8 - dayNum));
-  }
+  if (dayNum !== 1) current.setUTCDate(current.getUTCDate() + (8 - dayNum));
 
   // Boucler jusqu'à la fin de l'année
   while (current.getUTCFullYear() === year) {
@@ -118,12 +106,12 @@ export function getWeeksOfYear(year: number) {
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
     const weekNum = Math.ceil(((Number(d) - Number(yearStart)) / 86400000 + 1) / 7);
 
-    const shortYear = String(d.getUTCFullYear()).slice(-2);
-    
+    // Format "SNN-YYYY"
+    const weekCode = `S${String(weekNum).padStart(2, "0")}-${d.getUTCFullYear()}`;
     // Ajouter l'objet
     weeks.push({
       id: ++id, // ou utilisez un identifiant unique si nécessaire
-      week : `S${shortYear}-${String(weekNum).padStart(2, "0")}`,
+      week : weekCode,
       dateStart: formatDate(monday), // yyyy-MM-dd
       dateEnd: formatDate(sunday),
     });
