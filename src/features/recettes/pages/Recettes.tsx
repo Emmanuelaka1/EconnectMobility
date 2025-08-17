@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { DollarSign, Plus, Search, Filter, Calendar, Car, Edit, Trash2, Eye, Save, X } from 'lucide-react';
+import { DollarSign, Plus, Search, Filter, Calendar, Car, Edit, Trash2, Eye, X } from 'lucide-react';
 import { CarDto, RecetteDto } from '@/Api/ApiDto';
+import RecettesCarTable from './RecettesCarTable';
 
 const Recettes: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedWeek, setSelectedWeek] = useState('');
   const [selectedCar, setSelectedCar] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [editingRecette, setEditingRecette] = useState<RecetteDto | null>(null);
+  const [modalCar, setModalCar] = useState('');
+  const [modalWeek, setModalWeek] = useState('');
   const [selectedRecettes, setSelectedRecettes] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -103,83 +105,17 @@ const Recettes: React.FC = () => {
     }
   ]);
 
-  const [formData, setFormData] = useState<RecetteDto>({
-    car: undefined,
-    amount: 0,
-    dateRecette: '',
-    commentRecette: '',
-    week: ''
-  });
-
   // Fonctions CRUD
   const handleCreate = () => {
-    setEditingRecette(null);
-    setFormData({
-      car: undefined,
-      amount: 0,
-      dateRecette: '',
-      commentRecette: '',
-      week: ''
-    });
+    setModalCar('');
+    setModalWeek('');
     setShowModal(true);
   };
 
   const handleEdit = (recette: RecetteDto) => {
-    setEditingRecette(recette);
-    setFormData(recette);
+    setModalCar(recette.car?.referenceCar || '');
+    setModalWeek(recette.week || '');
     setShowModal(true);
-  };
-
-  const handleSave = async () => {
-    setLoading(true);
-    try {
-      const now = new Date().toISOString().split('T')[0];
-      
-      if (editingRecette) {
-        // Modification (updateRecette)
-        const updatedRecette: RecetteDto = {
-          ...formData,
-          idrecette: editingRecette.idrecette,
-          dmodification: now,
-          umodification: 'admin'
-        };
-        
-        // Simulation de l'appel API
-        // await recetteService.updateRecette(updatedRecette);
-        
-        setRecettes(recettes.map(r => 
-          r.idrecette === editingRecette.idrecette ? updatedRecette : r
-        ));
-      } else {
-        // Création (saveRecette) - organisée par WeekDto
-        const newRecette: RecetteDto = {
-          ...formData,
-          idrecette: Math.max(...recettes.map(r => r.idrecette || 0)) + 1,
-          dcreation: now,
-          dmodification: now,
-          ucreation: 'admin',
-          umodification: 'admin'
-        };
-        
-        // Simulation de l'appel API
-        // await recetteService.saveRecette(newRecette);
-        
-        setRecettes([...recettes, newRecette]);
-      }
-      
-      setShowModal(false);
-      setFormData({
-        car: undefined,
-        amount: 0,
-        dateRecette: '',
-        commentRecette: '',
-        week: ''
-      });
-    } catch (error) {
-      console.error('Erreur lors de la sauvegarde:', error);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleDelete = async (id: number) => {
@@ -561,111 +497,18 @@ const Recettes: React.FC = () => {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-800">
-                {editingRecette ? 'Modifier la Recette' : 'Nouvelle Recette'}
-              </h3>
-            </div>
-            
-            <div className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Voiture *
-                  </label>
-                  <select
-                    value={formData.car?.referenceCar || ''}
-                    onChange={(e) => {
-                      const selectedCar = voitures.find(v => v.referenceCar === e.target.value);
-                      setFormData({...formData, car: selectedCar});
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Sélectionner une voiture</option>
-                    {voitures.map(car => (
-                      <option key={car.referenceCar} value={car.referenceCar}>
-                        {car.marque} {car.modele} - {car.immatriculation}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Montant (€) *
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.amount || ''}
-                    onChange={(e) => setFormData({...formData, amount: parseFloat(e.target.value) || 0})}
-                    placeholder="Ex: 245.50"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date de la Recette *
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.dateRecette || ''}
-                    onChange={(e) => setFormData({...formData, dateRecette: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Semaine *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.week || ''}
-                    onChange={(e) => setFormData({...formData, week: e.target.value})}
-                    placeholder="Ex: S03-2024"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description
-                </label>
-                <textarea
-                  value={formData.commentRecette || ''}
-                  onChange={(e) => setFormData({...formData, commentRecette: e.target.value})}
-                  placeholder="Description de la course..."
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-            
-            <div className="p-6 border-t border-gray-200 flex justify-end space-x-3">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-800">Recettes par véhicule</h3>
               <button
                 onClick={() => setShowModal(false)}
-                disabled={loading}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 transition-colors duration-200 flex items-center space-x-2"
+                className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <X className="w-4 h-4" />
-                <span>Annuler</span>
               </button>
-              <button
-                onClick={handleSave}
-                disabled={loading || !formData.car || !formData.amount || !formData.dateRecette || !formData.week}
-                className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200 flex items-center space-x-2"
-              >
-                {loading ? (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <Save className="w-4 h-4" />
-                )}
-                <span>{editingRecette ? 'Modifier' : 'Créer'}</span>
-              </button>
+            </div>
+            <div className="p-4">
+              <RecettesCarTable initialCar={modalCar} initialWeek={modalWeek} />
             </div>
           </div>
         </div>

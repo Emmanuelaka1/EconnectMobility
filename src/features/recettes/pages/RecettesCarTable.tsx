@@ -5,10 +5,15 @@ import { format } from 'date-fns';
 
 const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
-const RecettesCarTable: React.FC = () => {
+interface RecettesCarTableProps {
+  initialCar?: string;
+  initialWeek?: string;
+}
+
+const RecettesCarTable: React.FC<RecettesCarTableProps> = ({ initialCar = '', initialWeek = '' }) => {
   const [cars, setCars] = useState<CarDto[]>([]);
-  const [selectedCar, setSelectedCar] = useState('');
-  const [selectedWeek, setSelectedWeek] = useState('');
+  const [selectedCar, setSelectedCar] = useState(initialCar);
+  const [selectedWeek, setSelectedWeek] = useState(initialWeek);
   const [rows, setRows] = useState<RecetteDto[]>([]);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
@@ -40,6 +45,14 @@ const RecettesCarTable: React.FC = () => {
       setLoading(false);
     }
   }, [selectedCar, selectedWeek]);
+
+  useEffect(() => {
+    setSelectedCar(initialCar);
+  }, [initialCar]);
+
+  useEffect(() => {
+    setSelectedWeek(initialWeek);
+  }, [initialWeek]);
 
   useEffect(() => {
     if (selectedCar && selectedWeek) {
