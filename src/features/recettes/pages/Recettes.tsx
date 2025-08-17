@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { DollarSign, Plus, Search, Filter, Calendar, Car, Edit, Trash2, Eye, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { CarDto, RecetteDto } from '@/Api/ApiDto';
 import { recetteService } from '@/Api/Service';
@@ -9,7 +9,7 @@ import { carService } from '@/core/api/webService';
 
 const Recettes: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedWeek, setSelectedWeek] = useState('');
+  const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
   const [selectedCar, setSelectedCar] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [modalCar, setModalCar] = useState('');
@@ -142,9 +142,9 @@ const Recettes: React.FC = () => {
       recette.dateRecette?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
       recette.referencecar?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesWeek = selectedWeek === '' || recette.week === selectedWeek;
+    const matchesWeek = recette.week === currentWeek;
     const matchesCar = selectedCar === '' || recette.referencecar === selectedCar;
-    
+
     return matchesSearch && matchesWeek && matchesCar;
   });
 
@@ -183,7 +183,26 @@ const Recettes: React.FC = () => {
   const recettesEnAttente = recettes.length - recettesValidees;
   const moyenneParRecette = recettes.length > 0 ? totalRecettes / recettes.length : 0;
 
-  const weeks = [...new Set(recettes.map(r => r.week).filter(Boolean))];
+  const weeks = useMemo(() => {
+    const uniques = [...new Set(recettes.map(r => r.week).filter(Boolean))] as string[];
+    return uniques.sort((a, b) => {
+      const [wa, ya] = a.slice(1).split('-');
+      const [wb, yb] = b.slice(1).split('-');
+      if (ya === yb) return parseInt(wa) - parseInt(wb);
+      return parseInt(ya) - parseInt(yb);
+    });
+  }, [recettes]);
+  const currentWeek = weeks[currentWeekIndex] || '';
+
+  useEffect(() => {
+    if (weeks.length > 0) {
+      setCurrentWeekIndex(weeks.length - 1);
+    }
+  }, [weeks]);
+
+  useEffect(() => {
+    setSelectedRecettes([]);
+  }, [currentWeek]);
 
   return (
     <div className="p-4 space-y-6">
@@ -243,6 +262,31 @@ const Recettes: React.FC = () => {
         </button>
       </div>
 
+      {/* Week Navigation */}
+      {weeks.length > 0 && (
+        <div className="flex items-center justify-center space-x-4 mt-4">
+          <button
+            onClick={() => setCurrentWeekIndex(i => Math.max(0, i - 1))}
+            disabled={currentWeekIndex === 0}
+            className="px-3 py-1 rounded-lg hover:bg-gray-200 disabled:opacity-50 flex items-center space-x-1"
+            aria-label="Semaine précédente"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span>Précédent</span>
+          </button>
+          <span className="font-medium">{currentWeek}</span>
+          <button
+            onClick={() => setCurrentWeekIndex(i => Math.min(weeks.length - 1, i + 1))}
+            disabled={currentWeekIndex === weeks.length - 1}
+            className="px-3 py-1 rounded-lg hover:bg-gray-200 disabled:opacity-50 flex items-center space-x-1"
+            aria-label="Semaine suivante"
+          >
+            <span>Suivant</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -296,7 +340,7 @@ const Recettes: React.FC = () => {
 
       {/* Filters */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative">
             <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
             <input
@@ -307,18 +351,6 @@ const Recettes: React.FC = () => {
               className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-          
-          <select
-            value={selectedWeek}
-            onChange={(e) => setSelectedWeek(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="">Toutes les semaines</option>
-            {weeks.map(week => (
-              <option key={week} value={week}>{week}</option>
-            ))}
-          </select>
-          
           <select
             value={selectedCar}
             onChange={(e) => setSelectedCar(e.target.value)}
