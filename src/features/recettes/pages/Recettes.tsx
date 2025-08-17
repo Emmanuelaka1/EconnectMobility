@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { DollarSign, Plus, Search, Filter, Calendar, Car, Edit, Trash2, Eye, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { CarDto, RecetteDto } from '@/Api/ApiDto';
 import { recetteService } from '@/Api/Service';
@@ -127,26 +127,35 @@ const Recettes: React.FC = () => {
   };
 
   const toggleRecetteSelection = (id: number) => {
-    setSelectedRecettes(prev => 
-      prev.includes(id) 
+    setSelectedRecettes(prev =>
+      prev.includes(id)
         ? prev.filter(recetteId => recetteId !== id)
         : [...prev, id]
     );
   };
 
-  // Consultation et filtrage
-  const filteredRecettes = recettes.filter(recette => {
-    const matchesSearch = 
-      recette.commentRecette?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      recette.amount?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
-      recette.dateRecette?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
-      recette.referencecar?.toLowerCase().includes(searchTerm.toLowerCase());
+  const weeks = [...new Set(recettes.map(r => r.week).filter(Boolean))];
+  const currentWeekIndex = weeks.length - 1;
+  const currentWeek = weeks[currentWeekIndex] || '';
 
-    const matchesWeek = selectedWeek === '' || recette.week === selectedWeek;
-    const matchesCar = selectedCar === '' || recette.referencecar === selectedCar;
-    
-    return matchesSearch && matchesWeek && matchesCar;
-  });
+  // Consultation et filtrage
+  const filteredRecettes = useMemo(
+    () =>
+      recettes.filter(recette => {
+        const matchesSearch =
+          recette.commentRecette?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          recette.amount?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+          recette.dateRecette?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+          recette.referencecar?.toLowerCase().includes(searchTerm.toLowerCase());
+
+        const weekToFilter = selectedWeek || currentWeek;
+        const matchesWeek = weekToFilter === '' || recette.week === weekToFilter;
+        const matchesCar = selectedCar === '' || recette.referencecar === selectedCar;
+
+        return matchesSearch && matchesWeek && matchesCar;
+      }),
+    [recettes, searchTerm, selectedWeek, selectedCar, currentWeek]
+  );
 
   const getStatusBadge = (recette: RecetteDto) => {
     // Logique pour déterminer le statut (exemple basé sur la date)
@@ -182,8 +191,6 @@ const Recettes: React.FC = () => {
   }).length;
   const recettesEnAttente = recettes.length - recettesValidees;
   const moyenneParRecette = recettes.length > 0 ? totalRecettes / recettes.length : 0;
-
-  const weeks = [...new Set(recettes.map(r => r.week).filter(Boolean))];
 
   return (
     <div className="p-4 space-y-6">
