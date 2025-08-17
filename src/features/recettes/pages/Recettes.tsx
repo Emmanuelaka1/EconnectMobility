@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { DollarSign, Plus, Search, Filter, Calendar, Car, Edit, Trash2, Eye, Save, X } from 'lucide-react';
 import { CarDto, RecetteDto } from '@/Api/ApiDto';
 
-const VTCRecettes: React.FC = () => {
+const Recettes: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedWeek, setSelectedWeek] = useState('');
   const [selectedCar, setSelectedCar] = useState('');
@@ -674,4 +674,4 @@ const VTCRecettes: React.FC = () => {
   );
 };
 
-export default VTCRecettes;
+export default Recettes;
