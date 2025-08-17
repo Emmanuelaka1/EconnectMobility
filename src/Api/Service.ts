@@ -77,6 +77,7 @@ export const recetteService = {
   getAllRecettes: () => apiRequest<RecetteDto[]>('/recettes/getAllRecettes'),
   getRecette: (id: number) => apiRequest<RecetteDto>(`/recettes/getRecette/${id}`),
   getRecettesByDate: (date: string) => apiRequest<RecetteDto[]>(`/recettes/getRecettesByDate/${date}`),
+  getRecettesByDateBetween: (startDate: string, endDate: string) => apiRequest<RecetteDto[]>(`/recettes/getRecettesByDateBetween/${startDate}/${endDate}`),
   getRecettesByWeek: (week: string) => apiRequest<RecetteDto[]>(`/recettes/getRecettesByWeek/${week}`),
   getRecettesByCar: (car: string) => apiRequest<RecetteDto[]>(`/recettes/getRecettesByCar/${car}`),
   getRecettesByCarAndWeek: (car: string, week: string) => apiRequest<RecetteDto[]>(`/recettes/getRecettesByCarAndWeek/${car}/${week}`),
