@@ -34,7 +34,7 @@ const Recettes: React.FC = () => {
   }, [recettes]);
 
   //ReferenceError: Cannot access 'currentWeek' before initialization
-  const currentWeek = weeks[currentWeekIndex] ?? 'S33-2025';
+  const currentWeek = weeks[currentWeekIndex] ;
 
   useEffect(() => {
     const { start, end } = getMonthDates(currentDate);
@@ -148,18 +148,23 @@ const Recettes: React.FC = () => {
   };
 
   // Consultation et filtrage
-  const filteredRecettes = recettes.filter(recette => {
-    const matchesSearch = 
-      recette.commentRecette?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      recette.amount?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
-      recette.dateRecette?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
-      recette.referencecar?.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredRecettes = useMemo(
+    () =>
+      recettes.filter(recette => {
+        const matchesSearch =
+          recette.commentRecette?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          recette.amount?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+          recette.dateRecette?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+          recette.referencecar?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesWeek = recette.week === 'S33-2025' || recette.week === currentWeek;
-    const matchesCar = selectedCar === '' || recette.referencecar === selectedCar;
+        const weekToFilter = currentWeek || currentWeek;
+        const matchesWeek = weekToFilter === '' || recette.week === weekToFilter;
+        const matchesCar = selectedCar === '' || recette.referencecar === selectedCar;
 
-    return matchesSearch && matchesWeek && matchesCar;
-  });
+        return matchesSearch && matchesWeek && matchesCar;
+      }),
+    [recettes, searchTerm, currentWeek, selectedCar]
+  );
 
   const getStatusBadge = (recette: RecetteDto) => {
     // Logique pour déterminer le statut (exemple basé sur la date)
