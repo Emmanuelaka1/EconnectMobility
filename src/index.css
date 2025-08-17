@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    color: var(--tw-text-primaryText) !important;
+  }
+}
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {
     display: none;

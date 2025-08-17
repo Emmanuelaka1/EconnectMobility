@@ -1,3 +1,4 @@
+import { D } from "node_modules/@tanstack/react-query-devtools/build/modern/ReactQueryDevtools-DO8QvfQP";
 import { WeekDto } from "../api/dataContratDto";
 
 export const jours = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"] as const;
@@ -8,7 +9,16 @@ const weeks = [] as WeekDto[];
 
 export const toISODate = (dt: Date): string => dt.toLocaleDateString("en-CA");
 
+export function toISOString(date: string | Date): string {
+  if (typeof date === "string") 
+    date = new Date(date);
+  
+  return date.toISOString();
+}
+
 export function formatDate(date: string | Date): string {
+  if(date=== undefined) return "";
+
   const d = new Date(date);
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, "0"); // mois commence à 0
@@ -139,4 +149,13 @@ export function getPreviousWeek(week:string): WeekDto | undefined {
 
   const currentIndex = weeks.indexOf(currentWeek);
   return weeks[currentIndex - 1];
+}
+
+export function toISOWeek(date = new Date()): string {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const weekNum = Math.ceil(((Number(d) - Number(yearStart)) / 86400000 + 1) / 7);
+  return `${d.getUTCFullYear()}-W${String(weekNum).padStart(2, "0")}`;
 }
