@@ -45,14 +45,10 @@ export function getWeekCurrent() {
   };
 }
 
-export function getMonthDates() {
-    const today = new Date();
-    // Date du jour (locale)
-    const currentDay = formatDate(today); // yyyy/MM/dd
-    // Début du mois (1er jour)
-    const start = formatDate(new Date(today.getFullYear(), today.getMonth(), 1));
-    // Fin du mois (dernier jour)
-    const end = formatDate(new Date(today.getFullYear(), today.getMonth() + 1, 0));
+export function getMonthDates(date: Date = new Date()) {
+    const currentDay = toISODate(date);
+    const start = toISODate(new Date(date.getFullYear(), date.getMonth(), 1));
+    const end = toISODate(new Date(date.getFullYear(), date.getMonth() + 1, 0));
     return { currentDay, start, end };
 }
 

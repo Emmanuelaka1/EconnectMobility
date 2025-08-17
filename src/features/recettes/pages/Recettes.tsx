@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { DollarSign, Plus, Search, Filter, Calendar, Car, Edit, Trash2, Eye, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { DollarSign, Plus, Search, Filter, Calendar, Car, Edit, Trash2, Eye, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { CarDto, RecetteDto } from '@/Api/ApiDto';
+import { recetteService } from '@/Api/Service';
+import { getMonthDates, mois } from '@/core/utils/DateUtils';
 import RecettesCarTable from './RecettesCarTable';
 
 const Recettes: React.FC = () => {
@@ -12,6 +14,7 @@ const Recettes: React.FC = () => {
   const [modalWeek, setModalWeek] = useState('');
   const [selectedRecettes, setSelectedRecettes] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   // Données par défaut - Voitures
   const [voitures] = useState<CarDto[]>([
@@ -41,69 +44,26 @@ const Recettes: React.FC = () => {
     }
   ]);
 
-  // Données par défaut - Recettes
-  const [recettes, setRecettes] = useState<RecetteDto[]>([
-    {
-      idrecette: 1,
-      car: voitures[0],
-      amount: 245.50,
-      dateRecette: '2024-01-15',
-      commentRecette: 'Course aéroport - centre ville',
-      week: 'S03-2024',
-      dcreation: '2024-01-15',
-      dmodification: '2024-01-15',
-      ucreation: 'admin',
-      umodification: 'admin'
-    },
-    {
-      idrecette: 2,
-      car: voitures[1],
-      amount: 89.75,
-      dateRecette: '2024-01-15',
-      commentRecette: 'Course courte distance',
-      week: 'S03-2024',
-      dcreation: '2024-01-15',
-      dmodification: '2024-01-15',
-      ucreation: 'admin',
-      umodification: 'admin'
-    },
-    {
-      idrecette: 3,
-      car: voitures[0],
-      amount: 156.00,
-      dateRecette: '2024-01-14',
-      commentRecette: 'Course longue distance',
-      week: 'S03-2024',
-      dcreation: '2024-01-14',
-      dmodification: '2024-01-14',
-      ucreation: 'admin',
-      umodification: 'admin'
-    },
-    {
-      idrecette: 4,
-      car: voitures[2],
-      amount: 198.25,
-      dateRecette: '2024-01-16',
-      commentRecette: 'Course VIP - événement spécial',
-      week: 'S03-2024',
-      dcreation: '2024-01-16',
-      dmodification: '2024-01-16',
-      ucreation: 'admin',
-      umodification: 'admin'
-    },
-    {
-      idrecette: 5,
-      car: voitures[1],
-      amount: 67.50,
-      dateRecette: '2024-01-13',
-      commentRecette: 'Course locale',
-      week: 'S02-2024',
-      dcreation: '2024-01-13',
-      dmodification: '2024-01-13',
-      ucreation: 'admin',
-      umodification: 'admin'
-    }
-  ]);
+  const [recettes, setRecettes] = useState<RecetteDto[]>([]);
+
+  useEffect(() => {
+    const { start, end } = getMonthDates(currentDate);
+    setLoading(true);
+    recetteService
+      .getRecettesByDateBetween(start, end)
+      .then(res => setRecettes(res.data ?? []))
+      .finally(() => setLoading(false));
+  }, [currentDate]);
+
+  const handlePrevMonth = () => {
+    setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
+
+  const monthLabel = `${mois[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
 
   // Fonctions CRUD
   const handleCreate = () => {
@@ -283,6 +243,25 @@ const Recettes: React.FC = () => {
             <span>Nouvelle Recette</span>
           </button>
         </div>
+      </div>
+
+      {/* Month Navigation */}
+      <div className="flex items-center justify-center space-x-2">
+        <button
+          onClick={handlePrevMonth}
+          className="p-2 rounded-lg hover:bg-gray-200"
+          aria-label="Mois précédent"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <span className="font-medium">{monthLabel}</span>
+        <button
+          onClick={handleNextMonth}
+          className="p-2 rounded-lg hover:bg-gray-200"
+          aria-label="Mois suivant"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Stats Cards */}
