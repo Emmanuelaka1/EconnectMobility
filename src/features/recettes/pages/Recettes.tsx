@@ -51,9 +51,11 @@ const Recettes: React.FC = () => {
     setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
   };
 
+  const canNextVehicle = currentDate.getMonth() < new Date().getMonth();
+
   const handleNextMonth = () => {
-    setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
-  };
+  setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+};
 
   const monthLabel = `${mois[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
 
@@ -191,15 +193,15 @@ const Recettes: React.FC = () => {
   };
 
   // Statistiques
-  const totalRecettes = recettes.reduce((sum, recette) => sum + (recette.amount || 0), 0);
-  const recettesValidees = recettes.filter(r => {
+  const totalRecettes = filteredRecettes.reduce((sum, recette) => sum + (recette.amount || 0), 0);
+  const recettesValidees = filteredRecettes.filter(r => {
     const today = new Date();
     const recetteDate = new Date(r.dateRecette || '');
     const daysDiff = Math.floor((today.getTime() - recetteDate.getTime()) / (1000 * 60 * 60 * 24));
     return daysDiff >= 1;
   }).length;
-  const recettesEnAttente = recettes.length - recettesValidees;
-  const moyenneParRecette = recettes.length > 0 ? totalRecettes / recettes.length : 0;
+  const recettesEnAttente = filteredRecettes.length - recettesValidees;
+  const moyenneParRecette = filteredRecettes.length > 0 ? totalRecettes / filteredRecettes.length : 0;
 
   useEffect(() => {
     if (weeks.length > 0) {
@@ -212,19 +214,18 @@ const Recettes: React.FC = () => {
   }, [currentWeek]);
 
   return (
-    <div className="p-4 space-y-5">
+    <div className="p-4 space-y-3 bg-gray-200">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Gestion des Recettes</h1>
-          <p className="text-gray-600 mt-1">Suivi des gains et revenus VTC par semaine</p>
         </div>
         
         {/* Month Navigation */}
-        <div className="flex items-center justify-center space-x-2">
+        <div className="flex items-center space-x-6">
           <button
             onClick={handlePrevMonth}
-            className="p-2 rounded-lg text-gray-900 hover:bg-gray-200"
+            className="p-2 hover:bg-blue-100 bg-blue-400 rounded-full shadow hover:bg-blue-600 disabled:opacity-50"
             aria-label="Mois précédent"
           >
             <ChevronLeft className="w-6 h-6" />
@@ -232,7 +233,8 @@ const Recettes: React.FC = () => {
           <span className="font-medium text-red-600">{monthLabel}</span>
           <button
             onClick={handleNextMonth}
-            className="p-2 rounded-lg text-gray-900 hover:bg-gray-200"
+            disabled={!canNextVehicle}
+            className="p-2 hover:bg-blue-100 bg-blue-400 rounded-full shadow hover:bg-blue-600 disabled:opacity-50"
             aria-label="Mois suivant"
           >
             <ChevronRight className="w-6 h-6" />
@@ -272,7 +274,7 @@ const Recettes: React.FC = () => {
 
       
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -323,7 +325,7 @@ const Recettes: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative">
             <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
@@ -367,21 +369,21 @@ const Recettes: React.FC = () => {
             <button 
               onClick={() => setCurrentWeekIndex(i => Math.max(0, i - 1))}
               disabled={currentWeekIndex === 0}
-              className="p-2 hover:bg-gray-100 bg-blue-100 rounded-full shadow hover:bg-blue-400 disabled:opacity-50"
+              className="p-2 bg-blue-300 rounded-full shadow hover:bg-blue-600 disabled:opacity-50"
             >
-              <ChevronLeft className="w-6 h-6 text-gray-600" />
+              <ChevronLeft className="w-6 h-6 text-gray-600 hover:text-white" />
             </button>
-            
-            <div className="bg-gray-200 rounded-full px-6 py-2">
+
+            <div className="bg-blue-300 rounded-full px-6 py-2">
               <span className="text-md font-medium text-gray-800"> <strong>Liste des Recettes  </strong>{formatWeek(currentWeek)}</span>
             </div>
             
             <button 
               onClick={() => setCurrentWeekIndex(i => Math.min(weeks.length - 1, i + 1))}
               disabled={currentWeekIndex === weeks.length - 1}
-              className="p-2 hover:bg-gray-100 bg-blue-100 rounded-full shadow hover:bg-blue-400 disabled:opacity-50"
+              className="p-2 bg-blue-300 rounded-full shadow hover:bg-blue-600 disabled:opacity-50"
             >
-              <ChevronRight className="w-6 h-6 text-gray-600" />
+              <ChevronRight className="w-6 h-6 text-gray-600 hover:text-white" />
             </button>
           </div>
          
@@ -447,7 +449,7 @@ const Recettes: React.FC = () => {
                   </td>
                   <td className="px-4 py-2 whitespace-nowrap">
                     <div className="flex items-center space-x-1">
-                      <span className="text-sm font-semibold text-gray-800">€{recette.amount?.toFixed(2)}</span>
+                      <span className="text-sm font-semibold text-gray-800">{formatCurrencyFull(recette.amount ?? 0)}</span>
                     </div>
                   </td>
                   <td className="px-4 py-2 whitespace-nowrap">

@@ -2,7 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { CarDto, RecetteDto } from '@/Api/ApiDto';
 import { carService, recetteService } from '@/Api/Service';
 import { format } from 'date-fns';
-import { formatDate, toISOWeek } from '@/core/utils/DateUtils';
+import { toISOWeek } from '@/core/utils/DateUtils';
+import { formatCurrencyFull } from '@/utils/format';
 
 const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
