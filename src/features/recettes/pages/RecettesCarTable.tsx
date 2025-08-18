@@ -19,6 +19,7 @@ const RecettesCarTable: React.FC<RecettesCarTableProps> = ({ initialCar = '', in
   const [rows, setRows] = useState<RecetteDto[]>([]);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const today = new Date();
   const maxWeek = toISOWeek(today);
@@ -91,6 +92,9 @@ const RecettesCarTable: React.FC<RecettesCarTableProps> = ({ initialCar = '', in
     setRows(prev => prev.map((r, i) => (i === index ? { ...r, [field]: value } : r)));
   };
 
+  const formatAmount = (amount?: number) =>
+    amount != null ? formatCurrencyFull(amount).replace(' FCFA', '') : '';
+
   const toggleSelect = (id?: number) => {
     if (!id) return;
     setSelectedIds(prev =>
@@ -102,11 +106,15 @@ const RecettesCarTable: React.FC<RecettesCarTableProps> = ({ initialCar = '', in
     const toUpdate = rows.filter(r => r.idrecette);
     const toCreate = rows.filter(r => !r.idrecette && r.amount);
     setLoading(true);
+    setStatus(null);
     try {
       if (toUpdate.length) await recetteService.updateRecettes(toUpdate);
       if (toCreate.length) await recetteService.saveRecettes(toCreate);
-      
+
       await fetchRecettes();
+      setStatus({ type: 'success', text: 'Recettes enregistrées avec succès' });
+    } catch {
+      setStatus({ type: 'error', text: "Échec de l'enregistrement des recettes" });
     } finally {
       setLoading(false);
     }
@@ -163,6 +171,13 @@ const RecettesCarTable: React.FC<RecettesCarTableProps> = ({ initialCar = '', in
           Charger
         </button>
       </div>
+      {status && (
+        <div
+          className={`text-sm ${status.type === 'success' ? 'text-green-600' : 'text-red-600'}`}
+        >
+          {status.text}
+        </div>
+      )}
       {rows.length > 0 && (
         <div className="overflow-x-auto">
           <table className="min-w-full border">
@@ -199,10 +214,14 @@ const RecettesCarTable: React.FC<RecettesCarTableProps> = ({ initialCar = '', in
                   </td>
                   <td className="p-2 border text-gray-900">
                     <input
-                      type="number"
-                      value={row.amount ?? 0}
-                      onChange={e => handleRowChange(idx, 'amount', parseFloat(e.target.value))}
-                      className="border p-1 rounded w-full text-gray-900"
+                      type="text"
+                      value={formatAmount(row.amount)}
+                      onChange={e => {
+                        const raw = e.target.value.replace(/\s/g, '');
+                        const num = parseInt(raw, 10);
+                        handleRowChange(idx, 'amount', Number.isNaN(num) ? 0 : num);
+                      }}
+                      className="border p-1 rounded w-full text-gray-900 text-right"
                     />
                   </td>
                   <td className="p-2 border text-gray-900">
