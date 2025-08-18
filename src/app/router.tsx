@@ -8,7 +8,7 @@ import AppShell from "@/components/layout/AppShell";
 // ✅ Tes pages
 import Login from "@/features/auth/Login";
 import Recettes from "@/features/recettes/pages/Recettes";
-import Voitures from "@/features/dashboard/pages/Voitures";
+import Voitures from "@/features/voitures/pages/Voitures";
 import Operations from "@/features/dashboard/pages/Operations";
 import Documents from "@/features/dashboard/pages/Documents";
 import Weeks from "@/features/dashboard/pages/Weeks";
