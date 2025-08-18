@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { carService } from '@/core/api/webService';
 import { Car, Plus, Search, Filter, Calendar, Edit, Trash2, Eye, Fuel, Settings, MapPin, Save, X } from 'lucide-react';
 import { CarDto, DocumentDto } from '@/Api/ApiDto';
 import { Upload, Paperclip } from 'lucide-react';
 
 const Voitures: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedMarque, setSelectedMarque] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingCar, setEditingCar] = useState<CarDto | null>(null);
@@ -14,60 +14,14 @@ const Voitures: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [uploadingDocuments, setUploadingDocuments] = useState(false);
 
-  // Données par défaut
-  const [voitures, setVoitures] = useState<CarDto[]>([
-    {
-      referenceCar: 'CAR-001',
-      immatriculation: 'ABC-123-DE',
-      marque: 'BMW',
-      modele: 'X5',
-      couleur: 'Noir',
-      carburant: 'Diesel',
-      anneeAchat: '2022',
-      kilometrage: '45000',
-      prixAchat: 65000,
-      dateAchat: '2022-06-15',
-      dateMiseEnCirculation: '2022-06-01',
-      dcreation: '2023-06-15',
-      dmodification: '2024-01-15',
-      ucreation: 'admin',
-      umodification: 'admin'
-    },
-    {
-      referenceCar: 'CAR-002',
-      immatriculation: 'DEF-456-GH',
-      marque: 'Mercedes',
-      modele: 'E-Class',
-      couleur: 'Blanc',
-      carburant: 'Essence',
-      anneeAchat: '2021',
-      kilometrage: '62000',
-      prixAchat: 58000,
-      dateAchat: '2021-04-10',
-      dateMiseEnCirculation: '2021-04-01',
-      dcreation: '2023-04-10',
-      dmodification: '2024-01-10',
-      ucreation: 'admin',
-      umodification: 'admin'
-    },
-    {
-      referenceCar: 'CAR-003',
-      immatriculation: 'GHI-789-JK',
-      marque: 'Audi',
-      modele: 'A6',
-      couleur: 'Gris',
-      carburant: 'Hybride',
-      anneeAchat: '2023',
-      kilometrage: '28000',
-      prixAchat: 72000,
-      dateAchat: '2023-08-20',
-      dateMiseEnCirculation: '2023-08-15',
-      dcreation: '2023-08-20',
-      dmodification: '2024-01-20',
-      ucreation: 'admin',
-      umodification: 'admin'
-    }
-  ]);
+  const [voitures, setVoitures] = useState<CarDto[]>([]);
+
+  useEffect(() => {
+    carService
+      .getAllCars()
+      .then(res => setVoitures(res.data ?? []))
+      .catch(err => console.error('Erreur lors du chargement des voitures:', err));
+  }, []);
 
   const [formData, setFormData] = useState<CarDto>({
     referenceCar: '',
@@ -166,27 +120,24 @@ const Voitures: React.FC = () => {
       const now = new Date().toISOString().split('T')[0];
       
       if (editingCar) {
-        // Mise à jour (updateCar)
         const updatedCar: CarDto = {
           ...formData,
           dmodification: now,
           umodification: 'admin'
         };
-        
-        // Simulation de l'appel API
-        // await carService.updateCar(updatedCar);
-        
-        setVoitures(voitures.map(v => 
-          v.referenceCar === editingCar.referenceCar ? updatedCar : v
+
+        const response = await carService.updateCar(updatedCar);
+        const saved = response.data ?? updatedCar;
+
+        setVoitures(voitures.map(v =>
+          v.referenceCar === editingCar.referenceCar ? saved : v
         ));
-        
-        // Upload des nouveaux documents si présents
+
         if (uploadedFiles.length > 0) {
           const newDocuments = await uploadDocuments(editingCar.referenceCar!);
-          updatedCar.documents = [...(updatedCar.documents || []), ...newDocuments];
+          saved.documents = [...(saved.documents || []), ...newDocuments];
         }
       } else {
-        // Création (saveCar)
         const newCar: CarDto = {
           ...formData,
           referenceCar: `CAR-${String(voitures.length + 1).padStart(3, '0')}`,
@@ -195,16 +146,15 @@ const Voitures: React.FC = () => {
           ucreation: 'admin',
           umodification: 'admin'
         };
-        
-        // Simulation de l'appel API
-        // await carService.saveCar(newCar);
-        
-        setVoitures([...voitures, newCar]);
-        
-        // Upload des documents
+
+        const response = await carService.saveCar(newCar);
+        const saved = response.data ?? newCar;
+
+        setVoitures([...voitures, saved]);
+
         if (uploadedFiles.length > 0) {
-          const newDocuments = await uploadDocuments(newCar.referenceCar!);
-          newCar.documents = newDocuments;
+          const newDocuments = await uploadDocuments(saved.referenceCar!);
+          saved.documents = newDocuments;
         }
       }
       
@@ -234,9 +184,7 @@ const Voitures: React.FC = () => {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette voiture ?')) {
       setLoading(true);
       try {
-        // Simulation de l'appel API
-        // await carService.deleteCar(referenceCar);
-        
+        await carService.deleteCar(referenceCar);
         setVoitures(voitures.filter(v => v.referenceCar !== referenceCar));
       } catch (error) {
         console.error('Erreur lors de la suppression:', error);
@@ -252,11 +200,7 @@ const Voitures: React.FC = () => {
     if (confirm(`Êtes-vous sûr de vouloir supprimer ${selectedCars.length} voiture(s) ?`)) {
       setLoading(true);
       try {
-        // Simulation des appels API
-        // for (const referenceCar of selectedCars) {
-        //   await carService.deleteCar(referenceCar);
-        // }
-        
+        await Promise.all(selectedCars.map(ref => carService.deleteCar(ref)));
         setVoitures(voitures.filter(v => !selectedCars.includes(v.referenceCar!)));
         setSelectedCars([]);
       } catch (error) {
@@ -291,12 +235,18 @@ const Voitures: React.FC = () => {
   // Statistiques
   const totalVoitures = voitures.length;
   const voituresActives = voitures.length; // Toutes sont considérées actives par défaut
-  const kilometrageMoyen = Math.round(
-    voitures.reduce((sum, v) => sum + parseInt(v.kilometrage || '0'), 0) / totalVoitures
-  );
-  const prixMoyen = Math.round(
-    voitures.reduce((sum, v) => sum + (v.prixAchat || 0), 0) / totalVoitures
-  );
+  const kilometrageMoyen =
+    totalVoitures > 0
+      ? Math.round(
+          voitures.reduce((sum, v) => sum + parseInt(v.kilometrage || '0'), 0) / totalVoitures
+        )
+      : 0;
+  const prixMoyen =
+    totalVoitures > 0
+      ? Math.round(
+          voitures.reduce((sum, v) => sum + (v.prixAchat || 0), 0) / totalVoitures
+        )
+      : 0;
 
   const marques = [...new Set(voitures.map(v => v.marque).filter(Boolean))];
 
