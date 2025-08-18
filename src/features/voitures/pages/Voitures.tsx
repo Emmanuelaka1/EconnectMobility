@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Car, Plus, Search, Filter, Calendar, Edit, Trash2, Eye, Fuel, Settings, MapPin, Save, X } from 'lucide-react';
 import { CarDto, DocumentDto } from '@/Api/ApiDto';
-import { carService, documentService } from '../../Api/Service';
 import { Upload, Paperclip } from 'lucide-react';
 
-const VTCVoitures: React.FC = () => {
+const Voitures: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedMarque, setSelectedMarque] = useState('');
@@ -768,4 +767,4 @@ const VTCVoitures: React.FC = () => {
   );
 };
 
-export default VTCVoitures;
+export default Voitures;

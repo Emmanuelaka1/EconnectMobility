@@ -2,7 +2,7 @@ import { Home, Car, DollarSign, CreditCard, Calendar, FileText } from "lucide-re
 import type { MenuItem } from "./types";
 
 import Dashboard from "@/features/dashboard/pages/Dashboard";
-import Voitures from "@/features/dashboard/pages/Voitures";
+import Voitures from "@/features/voitures/pages/Voitures";
 import Recettes from "@/features/recettes/pages/Recettes";
 import Operations from "@/features/dashboard/pages/Operations";
 import Weeks from "@/features/dashboard/pages/Weeks";
