@@ -52,7 +52,7 @@ export function useDashboardVehicles() {
         carService.getAllCars(),
         recetteService.getAllRecettes(),
       ]);
-      const cars = (carsRes.data ?? []) as CarDto[];
+      const cars = (carsRes.data?.sort((a, b) => (a.referenceCar ?? '').localeCompare(b.referenceCar ?? '')) ?? []) as CarDto[];
       const recettes = (recettesRes.data ?? []) as RecetteDto[];
       const recettesByCar: Record<string, number> = {};
       recettes.forEach((r) => {

@@ -19,7 +19,7 @@ const Voitures: React.FC = () => {
   useEffect(() => {
     carService
       .getAllCars()
-      .then(res => setVoitures(res.data ?? []))
+      .then(res => setVoitures(res.data?.sort((a, b) => (a.referenceCar ?? '').localeCompare(b.referenceCar ?? '')) ?? []))
       .catch(err => console.error('Erreur lors du chargement des voitures:', err));
   }, []);
 
